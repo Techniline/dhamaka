@@ -3,8 +3,8 @@
  * once with #key=<value> in the link; the key is remembered on that device.
  */
 (function () {
-  var CFG = window.ROSHNI;
-  var KEY_STORE = "roshni-key";
+  var CFG = window.DHAMAKA;
+  var KEY_STORE = "dhamaka-key";
   var m = /[#&]key=([^&]+)/.exec(location.hash);
   if (m) {
     try { localStorage.setItem(KEY_STORE, decodeURIComponent(m[1])); } catch (e) {}

@@ -1,4 +1,4 @@
-/* Generates the Roshni artwork in assets/ (run: node tools/make-art.js).
+/* Generates the Diwali Dhamaka artwork in assets/ (run: node tools/make-art.js).
  * Everything is plain SVG so it stays sharp on phones, posters and the big screen.
  *   mandala.svg       large rangoli used as key art (pages, poster, big screens)
  *   rangoli-tile.svg  faint repeating pattern for backgrounds (replaces the speaker grille)

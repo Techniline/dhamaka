@@ -6,7 +6,7 @@
  * Security note: this file is public. Never put a PIN, a staff key or an API
  * secret here. Those go in the Apps Script's Script Properties only.
  * ===================================================================== */
-window.ROSHNI = {
+window.DHAMAKA = {
 
   // ---- Event --------------------------------------------------------------
   eventName: "Diwali Dhamaka",            // the event's name
@@ -60,7 +60,7 @@ window.ROSHNI = {
   // ---- Connections (README steps 1 and 2) ---------------------------------------
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbwfUKDXqBVH0kZfopdttI00ebJQpOvDwKcoYzqwLtTcGnVcjeARBlcu-8hbyRgJAI6PJw/exec",   // ends with /exec
   cloudinaryCloudName: "xccqslt2",
-  cloudinaryUploadPreset: "roshni",       // unsigned preset, folder "roshni" (internal name, never shown)
+  cloudinaryUploadPreset: "dhamaka",      // unsigned preset, folder "dhamaka"
   // Where the site lives: used for the QR codes on screens and posters.
   siteUrl: "https://techniline.github.io/diwali/",
   // Only used when a page is opened from this computer's test server (localhost)
@@ -71,11 +71,11 @@ window.ROSHNI = {
  * Below: applies the colours to every page. No need to edit.
  * ------------------------------------------------------------------- */
 (function () {
-  var c = window.ROSHNI.colors, s = document.documentElement.style;
+  var c = window.DHAMAKA.colors, s = document.documentElement.style;
   function rgb(hex) { var n = parseInt(hex.replace("#", ""), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255].join(","); }
   Object.keys(c).forEach(function (k) { s.setProperty("--" + k, c[k]); s.setProperty("--" + k + "-rgb", rgb(c[k])); });
-  s.setProperty("--screen-w", window.ROSHNI.screen.width + "px");
-  s.setProperty("--screen-h", window.ROSHNI.screen.height + "px");
+  s.setProperty("--screen-w", window.DHAMAKA.screen.width + "px");
+  s.setProperty("--screen-h", window.DHAMAKA.screen.height + "px");
   var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-  window.ROSHNI.api = local && !/[?&]liveapi\b/.test(location.search) ? window.ROSHNI.localTestApi : window.ROSHNI.appsScriptUrl;
+  window.DHAMAKA.api = local && !/[?&]liveapi\b/.test(location.search) ? window.DHAMAKA.localTestApi : window.DHAMAKA.appsScriptUrl;
 })();

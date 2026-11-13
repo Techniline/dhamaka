@@ -1,5 +1,5 @@
 /**
- * Roshni · Techniline Electronics Diwali Night: backend (Google Apps Script).
+ * Diwali Dhamaka · Techniline Electronics: backend (Google Apps Script).
  *
  * Three jobs, one script:
  *  1. Photo album (from the Capture the Moment kit): guests' framed photos go
@@ -30,9 +30,9 @@
  *   Updating later: Deploy > Manage deployments > Edit > Version: New version > Deploy.
  */
 
-var FOLDER_NAME = 'Roshni 2026 - Diwali Photos';
+var FOLDER_NAME = 'Diwali Dhamaka 2026 - Photos';
 var CLOUD = 'xccqslt2';            // Cloudinary cloud name (public), same as config.js
-var CLOUD_ID = /^(roshni\/)?[A-Za-z0-9_-]{6,64}$/; // public IDs from the roshni upload preset
+var CLOUD_ID = /^(dhamaka\/)?[A-Za-z0-9_-]{6,64}$/; // public IDs from the dhamaka upload preset
 var TZ = 'Asia/Dubai';
 var DRAW_PREFIX = 'DW-';
 var DEFAULT_PRIZES = ['3rd prize', '2nd prize', '1st prize'];
@@ -48,6 +48,7 @@ var MAX_PEOPLE = 1500;
 
 function setup() {
   var root = getFolder_();
+  if (root.getName() !== FOLDER_NAME) root.setName(FOLDER_NAME); // keeps the Drive folder's name in step with the event name
   getSubFolder_('Framed');
   getSubFolder_('Originals');
   Logger.log('Photos will be saved to: ' + root.getUrl());
@@ -67,7 +68,7 @@ function doGet(e) {
       var items = allItems_().sort(function (a, b) { return b.t - a.t; });
       return json_({ ok: true, photos: items, auto: isAuto_() });
     }
-    return json_({ ok: true, service: 'roshni', locked: !!staffKey_() });
+    return json_({ ok: true, service: 'diwali-dhamaka', locked: !!staffKey_() });
   } catch (err) {
     return json_({ ok: false, error: String(err.message || err) });
   }
@@ -384,7 +385,7 @@ function register_(body) {
 function upload_(body) {
   var framed = jpeg_(body.framed);
   var stamp = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH.mm.ss') + ' ' + Utilities.getUuid().slice(0, 4);
-  var file = getSubFolder_('Framed').createFile(Utilities.newBlob(framed, 'image/jpeg', 'Roshni ' + stamp + '.jpg'));
+  var file = getSubFolder_('Framed').createFile(Utilities.newBlob(framed, 'image/jpeg', 'Diwali Dhamaka ' + stamp + '.jpg'));
   // Unlisted link so the approval page can preview it; only listed publicly once approved.
   file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
   var auto = isAuto_(), now = Date.now();
@@ -466,7 +467,7 @@ function backupToDrive() {
       var it = todo[i];
       var res = UrlFetchApp.fetch('https://res.cloudinary.com/' + CLOUD + '/image/upload/' + (it.v ? 'v' + it.v + '/' : '') + it.id + '.jpg', { muteHttpExceptions: true });
       if (res.getResponseCode() !== 200) continue;
-      var file = folder.createFile(res.getBlob().setName('Roshni ' + Utilities.formatDate(new Date(it.t), TZ, 'yyyy-MM-dd HH.mm.ss') + ' ' + it.id.slice(-6) + '.jpg'));
+      var file = folder.createFile(res.getBlob().setName('Diwali Dhamaka ' + Utilities.formatDate(new Date(it.t), TZ, 'yyyy-MM-dd HH.mm.ss') + ' ' + it.id.slice(-6) + '.jpg'));
       var fresh = props.getProperty(ITEM + it.id);
       if (!fresh) { file.setTrashed(true); continue; }
       var cur = JSON.parse(fresh);

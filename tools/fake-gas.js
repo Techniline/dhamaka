@@ -40,7 +40,7 @@ function makeServices(opts = {}) {
   }
   function folder(id, name) {
     return {
-      getId: () => id, getUrl: () => 'https://drive.google.com/drive/folders/' + id, getName: () => name,
+      getId: () => id, getUrl: () => 'https://drive.google.com/drive/folders/' + id, getName: () => name, setName: (n) => { name = n; },
       createFile: (b) => { const fid = 'drv_' + crypto.randomBytes(8).toString('hex'); files.set(fid, { blob: b, trashed: false, sharing: 'private' }); return file(fid); },
       createFolder: (n) => folder('fld_' + crypto.randomBytes(4).toString('hex'), n),
       getFoldersByName: () => ({ hasNext: () => false }),

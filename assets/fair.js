@@ -23,5 +23,5 @@
     });
   }
   var api = { fairIndex: fairIndex, fingerprint: fingerprint };
-  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.RoshniFair = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.DhamakaFair = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
-<link rel="stylesheet" href="assets/roshni.css">
+<link rel="stylesheet" href="assets/dhamaka.css">
 <style>
   .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
   .wrap-wide { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
@@ -196,7 +196,7 @@
 // Cloudinary with real progress on the shutter ring, then registered with the
 // Apps Script. If Cloudinary can't be reached the photo goes through Google
 // Drive instead, so an upload is never lost.
-var CFG = window.ROSHNI, API = CFG.api, CLOUD_NAME = CFG.cloudinaryCloudName, CLOUD_PRESET = CFG.cloudinaryUploadPreset;
+var CFG = window.DHAMAKA, API = CFG.api, CLOUD_NAME = CFG.cloudinaryCloudName, CLOUD_PRESET = CFG.cloudinaryUploadPreset;
 var $ = function (id) { return document.getElementById(id); };
 R.brand();
 (CFG.hashtags || []).forEach(function (h) { var s = document.createElement("span"); s.textContent = h; $("hashtags").appendChild(s); });

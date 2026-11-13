@@ -7,7 +7,7 @@
  *   makeCaptureFrame(img [, whenMs])  ->  Promise<{ dataUrl, w, h }>
  */
 (function () {
-  var CFG = window.ROSHNI, F = CFG.frame || {}, C = CFG.colors;
+  var CFG = window.DHAMAKA, F = CFG.frame || {}, C = CFG.colors;
   var assets = null;
 
   function loadImg(src) {

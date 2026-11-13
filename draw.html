@@ -18,7 +18,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@600;700;800;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="config.js"></script>
-<link rel="stylesheet" href="assets/roshni.css">
+<link rel="stylesheet" href="assets/dhamaka.css">
 <style>
   html, body { height: 100%; overflow: hidden; background: #14040e; }
   :root { --cell: 270px; }
@@ -316,9 +316,9 @@ function draw() {
   $("prize").textContent = prize;
 
   // The winner is decided here, before anything moves; the reels then land on it.
-  var pick = RoshniFair.fairIndex(list.length), winner = list[pick.index];
+  var pick = DhamakaFair.fairIndex(list.length), winner = list[pick.index];
   var target = String(winner.n); while (target.length < digits) target = "0" + target;
-  var at = Date.now(), fpP = RoshniFair.fingerprint(list.map(function (e) { return e.n; }));
+  var at = Date.now(), fpP = DhamakaFair.fingerprint(list.map(function (e) { return e.n; }));
 
   $("eyebrow").textContent = "Shuffling " + list.length + " entries";
   spinAll();

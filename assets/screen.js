@@ -5,7 +5,7 @@
  *   F             full screen;  the mouse cursor hides after 2 seconds of stillness
  */
 (function () {
-  var S = (window.ROSHNI && window.ROSHNI.screen) || { width: 1920, height: 1080 };
+  var S = (window.DHAMAKA && window.DHAMAKA.screen) || { width: 1920, height: 1080 };
   var W = S.width, H = S.height, top = /[?&]anchor=top\b/.test(location.search);
   function fit() {
     var el = document.querySelector('.screen');

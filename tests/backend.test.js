@@ -181,18 +181,18 @@ test('open by default; a STAFF_KEY locks staff actions but not guest photos', ()
   locked.fail({ action: 'importPeople', rows: ROWS }, /staff link/);
   locked.ok({ action: 'importPeople', rows: ROWS, key: 'k3y' });
   assert.equal(locked.g.get({ action: 'list' }).ok, true, 'the public album still works');
-  locked.ok({ action: 'register', id: 'roshni/abc123', w: 10, h: 10 });
+  locked.ok({ action: 'register', id: 'dhamaka/abc123', w: 10, h: 10 });
 });
 
 test('photos: register, approve, auto-approve and public list', () => {
   const { g, ok, fail } = fresh();
   fail({ action: 'register', id: '../bad' }, /Bad photo id/);
-  assert.equal(ok({ action: 'register', id: 'roshni/photo01', w: 1080, h: 1300, v: 5 }).approved, false);
+  assert.equal(ok({ action: 'register', id: 'dhamaka/photo01', w: 1080, h: 1300, v: 5 }).approved, false);
   assert.equal(g.get({ action: 'list' }).photos.length, 0);
-  ok({ action: 'review', id: 'roshni/photo01', status: 'a' });
+  ok({ action: 'review', id: 'dhamaka/photo01', status: 'a' });
   assert.equal(g.get({ action: 'list' }).photos.length, 1);
   ok({ action: 'settings', auto: true });
-  assert.equal(ok({ action: 'register', id: 'roshni/photo02', w: 1, h: 1 }).approved, true);
+  assert.equal(ok({ action: 'register', id: 'dhamaka/photo02', w: 1, h: 1 }).approved, true);
   assert.equal(g.get({ action: 'admin' }).photos.length, 2);
 });
 
@@ -213,4 +213,13 @@ test('the people answer is cached and refreshed after every change', () => {
   assert.equal(g._.stats.propReads - reads, 2, 'served from the cache');
   ok({ action: 'checkin', id: 1, on: true, op: op() });
   assert.ok(state().rev > r1);
+});
+
+test('setup renames an existing Drive folder to the current event name', () => {
+  const { g } = fresh();
+  const old = g.ctx.DriveApp.createFolder('Roshni 2026 - Diwali Photos');
+  g._.props.set('FOLDER_ID', old.getId());
+  g.ctx.setup();
+  assert.equal(old.getName(), 'Diwali Dhamaka 2026 - Photos');
+  assert.equal(g._.props.get('FOLDER_ID'), old.getId(), 'same folder, just renamed');
 });

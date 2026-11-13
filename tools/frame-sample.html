@@ -1,0 +1,22 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Frame sample</title>
+<!-- Shows the photo frame on a sample photo. ?landscape for a wide photo. Used by tools/shots.sh. -->
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#111}img{display:block;width:100vw;height:auto}</style>
+<script src="../config.js"></script>
+<script src="../assets/frame.js"></script>
+<script>
+(async function () {
+  var wide = /landscape/.test(location.search), w = wide ? 1600 : 1200, h = wide ? 1066 : 1600;
+  var c = document.createElement("canvas"); c.width = w; c.height = h;
+  var g = c.getContext("2d"), gr = g.createLinearGradient(0, 0, w, h);
+  gr.addColorStop(0, "#2d4f7c"); gr.addColorStop(0.6, "#8a6a7c"); gr.addColorStop(1, "#e0a85a");
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  // a few soft "fairy lights" so the sample reads as a party photo
+  for (var i = 0; i < 40; i++) { var x = (i * 97) % w, y = (i * 53) % (h * 0.6); var rg = g.createRadialGradient(x, y, 0, x, y, 30); rg.addColorStop(0, "rgba(255,220,140,.9)"); rg.addColorStop(1, "rgba(255,220,140,0)"); g.fillStyle = rg; g.fillRect(x - 30, y - 30, 60, 60); }
+  var img = new Image(); img.src = c.toDataURL("image/jpeg"); await img.decode();
+  var f = await makeCaptureFrame(img);
+  var out = new Image(); out.src = f.dataUrl; document.body.appendChild(out);
+})();
+</script>

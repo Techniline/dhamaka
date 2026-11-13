@@ -46,4 +46,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
     res.end(data);
   });
-}).listen(PORT, () => console.log('Roshni test server on http://localhost:' + PORT));
+}).listen(PORT, () => console.log('Diwali Dhamaka test server on http://localhost:' + PORT));
