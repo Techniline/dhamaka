@@ -53,6 +53,8 @@
 
   .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 0; }
   .prize { font: 800 22px 'Manrope', sans-serif; letter-spacing: 0.32em; text-transform: uppercase; color: var(--marigold); min-height: 1.4em; }
+  .meaning { font: italic 600 24px/1.3 'Manrope', sans-serif; color: var(--cream); opacity: 0.92; min-height: 1.3em; margin-top: 8px; }
+  .meaning b { font-style: normal; color: var(--gold); }
   .eyebrow2 { font-size: 18px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); min-height: 1.4em; margin-top: 8px; }
   .title { font: 800 56px/1.05 'Poppins', sans-serif; margin: 10px 0 30px; }
   .title em { font-style: normal; color: var(--gold); }
@@ -127,6 +129,7 @@
 
   <section class="center">
     <div class="prize" id="prize"></div>
+    <div class="meaning" id="meaning"></div>
     <div class="eyebrow2" id="eyebrow">Dhamaka raffle</div>
     <h1 class="title" id="title">And the winner <em>is</em></h1>
     <div class="machine" id="machine">
@@ -144,6 +147,7 @@
       <button class="btn btn-ghost btn-sm icon-btn" id="sound" type="button" title="Sound (M)" aria-label="Sound on">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path id="snd-wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
       </button>
+      <button class="btn btn-ghost btn-sm" id="voicebtn" type="button" title="Announcer voice (V)">Voice</button>
       <button class="btn btn-ghost btn-sm" id="logbtn" type="button" title="Draw log (L)">Log</button>
       <button class="btn btn-ghost btn-sm" id="redraw" type="button" hidden>Not here? Redraw</button>
       <button class="btn btn-ghost btn-sm" id="reset" type="button">Reset</button>
@@ -237,8 +241,90 @@ function render() {
   if (!busy) {
     $("prize").textContent = done ? "Congratulations to our winners" : next;
     $("eyebrow").textContent = done ? "Thank you, everyone" : "Prize " + (winners.length + 1) + " of " + prizes.length;
+    showMeaning(done ? "" : next);
   }
 }
+
+// ================================================================ prize meanings and the announcer
+// Announcements are spoken in English, then Hindi, with the best built-in voice for each
+// language (natural/online voices first). A language with no voice installed is skipped.
+var MEANINGS = CFG.draw.meanings || [], VOICE = CFG.draw.voice || {};
+var MODES = ["both", "english", "hindi", "off"], voiceMode = MODES.indexOf(VOICE.mode) >= 0 ? VOICE.mode : "both";
+var RANK_EN = { 1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth" };
+var RANK_HI = { 1: "पहला", 2: "दूसरा", 3: "तीसरा", 4: "चौथा", 5: "पाँचवाँ" };
+var RANK_HI_OBL = { 1: "पहले", 2: "दूसरे", 3: "तीसरे", 4: "चौथे", 5: "पाँचवें" };
+function wordRe(w, flags) { return new RegExp("(^|[^A-Za-z])" + w + "(?![A-Za-z])", flags || "i"); }
+function meaningOf(prize) {
+  for (var i = 0; i < MEANINGS.length; i++) if (wordRe(MEANINGS[i].word).test(prize || "")) return MEANINGS[i];
+  return null;
+}
+function showMeaning(prize) {
+  var m = meaningOf(prize);
+  $("meaning").innerHTML = m ? "<b>" + R.esc(m.word) + "</b> means " + R.esc(m.means) + (m.hi ? " &nbsp;·&nbsp; " + R.esc(m.hi) : "") : "";
+}
+function rankNo(prize) { var r = /(\d+)\s*(st|nd|rd|th)/i.exec(prize || ""); return r ? Number(r[1]) : 0; }
+function rankEn(prize) { var n = rankNo(prize); return n ? (RANK_EN[n] || n + "th") + " prize" : "next prize"; }
+// The prize as the voice should say it: without the "3rd Prize ·" part
+function bareName(prize) { return String(prize || "").replace(/^\s*\d+\s*(st|nd|rd|th)\s*prize\s*[·:\-–]?\s*/i, "").replace(/·/g, ","); }
+function sayEn(text) { MEANINGS.forEach(function (m) { text = text.replace(wordRe(m.word, "gi"), function (all, pre) { return pre + (m.say || m.word); }); }); return text; }
+function sayHi(text) { MEANINGS.forEach(function (m) { if (m.hi) text = text.replace(wordRe(m.word, "gi"), function (all, pre) { return pre + m.hi; }); }); return text.replace(/Grand Prize/i, "ग्रैंड प्राइज़").replace(/\bPrize\b/i, "इनाम"); }
+
+var voices = [];
+function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } paintVoice(); }
+if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function pickVoice(langs) {
+  for (var i = 0; i < langs.length; i++) {
+    var want = langs[i].toLowerCase();
+    var list = voices.filter(function (v) { return v.lang.toLowerCase().replace("_", "-").indexOf(want) === 0; });
+    if (!list.length) continue;
+    return list.filter(function (v) { return /natural|online|neural/i.test(v.name); })[0] ||
+      list.filter(function (v) { return /google/i.test(v.name); })[0] || list[0];
+  }
+  return null;
+}
+function enVoice() { return pickVoice(VOICE.english || ["en-IN", "en-GB", "en-US", "en"]); }
+function hiVoice() { return pickVoice(VOICE.hindi || ["hi-IN", "hi"]); }
+function speak(text, voice) {
+  var u = new SpeechSynthesisUtterance(text);
+  if (voice) { u.voice = voice; u.lang = voice.lang; }
+  u.rate = VOICE.rate || 0.95; u.pitch = VOICE.pitch || 1; u.volume = 1;
+  speechSynthesis.speak(u); // utterances queue, so Hindi follows English
+}
+function announce(en, hi, delay) {
+  if (voiceMode === "off" || !soundOn || !window.speechSynthesis) return;
+  setTimeout(function () {
+    if (voiceMode === "off" || !soundOn) return;
+    var ev = enVoice(), hv = hiVoice();
+    if (en && (voiceMode === "both" || voiceMode === "english") && ev) speak(en, ev);
+    if (hi && (voiceMode === "both" || voiceMode === "hindi") && hv) speak(hi, hv);
+  }, delay || 0);
+}
+function hush() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
+function announcePrize(prize, isLastPrize) {
+  var m = meaningOf(prize), n = rankNo(prize), name = bareName(prize);
+  var en = (isLastPrize ? "And now, the moment we have all been waiting for! " : "") +
+    "Now drawing the " + rankEn(prize) + ": " + sayEn(name) + "!" +
+    (m ? " " + (m.say || m.word) + " means " + m.means.replace(":", ",") + "." : "");
+  var hi = (isLastPrize ? "और अब, जिस पल का सबको इंतज़ार था! " : "") +
+    "अब " + (RANK_HI_OBL[n] ? RANK_HI_OBL[n] + " इनाम" : "अगले इनाम") + " की बारी है: " + sayHi(name) + "!" +
+    (m && m.hiMeans ? " " + (m.hi || m.word) + ", यानी " + m.hiMeans + "।" : "");
+  announce(en, hi);
+}
+function announceWinner(prize, w) {
+  var n = rankNo(prize);
+  var en = "The " + rankEn(prize) + " goes to... " + w.name + (w.host ? ", guest of " + w.host : "") + "! Congratulations!";
+  var hi = (RANK_HI[n] ? RANK_HI[n] + " इनाम" : "यह इनाम") + " जीता है... " + w.name + " ने! बहुत-बहुत बधाई!";
+  hush(); announce(en, hi, 1300);
+}
+function voiceLabel() { return { both: "Voice: English + Hindi", english: "Voice: English", hindi: "Voice: Hindi", off: "Voice off" }[voiceMode]; }
+function paintVoice() {
+  var b = $("voicebtn"); if (!b) return;
+  var ev = enVoice(), hv = hiVoice();
+  b.textContent = voiceLabel();
+  b.style.color = voiceMode === "off" ? "" : "var(--gold)";
+  b.title = "Announcer (V). English voice: " + (ev ? ev.name : "none found") + ". Hindi voice: " + (hv ? hv.name : "none found") + ".";
+}
+
 
 // ================================================================ reels
 var reels = [], CELL = 270;
@@ -314,6 +400,8 @@ function draw() {
   $("redraw").hidden = true; $("draw").disabled = true;
   var who = $("who"); who.className = "who"; who.innerHTML = "";
   $("prize").textContent = prize;
+  showMeaning(prize);
+  hush(); announcePrize(prize, winners.length === prizes.length - 1 && prizes.length > 1);
 
   // The winner is decided here, before anything moves; the reels then land on it.
   var pick = DhamakaFair.fairIndex(list.length), winner = list[pick.index];
@@ -344,10 +432,10 @@ function draw() {
     winners.push({ n: winner.n, name: winner.name, host: winner.host || "", dept: winner.dept || "", prize: prize, t: Date.now() });
     current = winner;
     saving++; // hold the 20-second refresh until this winner is saved
-    celebrate(); chime();
+    celebrate(); chime(); announceWinner(prize, winner);
     busy = false; $("redraw").hidden = false;
     render();
-    $("prize").textContent = prize;
+    $("prize").textContent = prize; showMeaning(prize);
     $("eyebrow").textContent = "Winner " + winners.length + " of " + prizes.length;
     fpP.then(function (fp) {
       var entry = { at: at, no: R.drawNo(winner.n), name: winner.name, prize: prize, pool: list.length, fp: fp, idx: pick.index, raw: pick.raw, kind: "win" };
@@ -517,16 +605,22 @@ function boom() { if (!ac || !soundOn) return; tone(60 + Math.random() * 20, 0.5
 $("draw").addEventListener("click", draw);
 $("redraw").addEventListener("click", redraw);
 $("reset").addEventListener("click", reset);
-$("sound").addEventListener("click", function () { soundOn = !soundOn; if (soundOn) audioInit(); paintSound(); });
+$("sound").addEventListener("click", function () { soundOn = !soundOn; if (soundOn) audioInit(); else hush(); paintSound(); });
+$("voicebtn").addEventListener("click", function () {
+  voiceMode = MODES[(MODES.indexOf(voiceMode) + 1) % MODES.length];
+  if (voiceMode === "off") hush();
+  paintVoice(); R.toast(voiceLabel());
+});
 $("logbtn").addEventListener("click", function () { $("log").hidden = !$("log").hidden; paintLog(); });
 document.addEventListener("keydown", function (e) {
   if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
   if (e.code === "Space" || e.key === "Enter") { e.preventDefault(); draw(); }
   else if (e.key === "m" || e.key === "M") $("sound").click();
+  else if (e.key === "v" || e.key === "V") $("voicebtn").click();
   else if (e.key === "l" || e.key === "L") $("logbtn").click();
 });
 
-paintSound(); paintLog();
+paintSound(); paintVoice(); paintLog();
 if (DEMO) {
   people = demoPeople();
   $("demo-tag").hidden = false;

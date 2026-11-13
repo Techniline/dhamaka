@@ -26,6 +26,7 @@ There's no PIN: every page opens straight away. If you want to lock the staff pa
 - Every pick is written to the **draw log** (press **L**): time, prize, pool size, the pick's position, the random value and a SHA-256 fingerprint of the entry list. Winners and the log are saved in the Apps Script, so a refresh or a different laptop keeps them.
 - Keys on the draw screen: **Space** draws, **M** mutes, **L** shows the log, **F** is full screen. The cursor and the buttons hide after 2 seconds without mouse movement.
 - Timing is in `config.js` → `draw.pace` (about 21 seconds per draw: 4 s shuffle, 3 s per digit, 9 s for the last digit).
+- **Announcer voice:** the draw screen reads out each prize and what its name means, then the winner, in English and then Hindi, using the computer's built-in voices (Google voices in Chrome; the most natural ones are in Microsoft Edge). **V** switches between English + Hindi, English only, Hindi only and off. **M** mutes all sound. Prize meanings and pronunciations are in `config.js` → `draw.meanings`.
 - Prizes are drawn in list order. Change them in **admin → Prizes** on the night. The first line is drawn first, so put the top prize last.
 
 ---

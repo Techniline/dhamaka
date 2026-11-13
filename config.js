@@ -50,7 +50,26 @@ window.DHAMAKA = {
     // You can change them on the night in admin.html without touching this file.
     prizes: ["3rd Prize · Phuljhadi", "2nd Prize · Anaar", "1st Prize · Dhamaka Grand Prize"],
     // Timing of one draw in milliseconds (about 21 seconds from Draw to the name)
-    pace: { shuffle: 4000, gap: 900, digit: 3000, digitTurns: 2, last: 9000, lastTurns: 9 }
+    pace: { shuffle: 4000, gap: 900, digit: 3000, digitTurns: 2, last: 9000, lastTurns: 9 },
+    // The announcer: the draw screen reads out each prize, what its name means, and the
+    // winner, in English and then Hindi, with the computer's built-in natural voices.
+    // mode: "both", "english", "hindi" or "off". V cycles through them; M mutes everything.
+    // Best voices: Microsoft Edge (Neerja/Prabhat for English, Swara/Madhur for Hindi).
+    voice: {
+      mode: "both", rate: 0.95, pitch: 1.0,
+      english: ["en-IN", "en-GB", "en-US", "en"],
+      hindi: ["hi-IN", "hi"]
+    },
+    // What each prize name means, found by a word in the prize's name. "say" is how the
+    // English voice should pronounce it; "hi" and "hiMeans" are used for the Hindi announcement.
+    meanings: [
+      { word: "Phuljhadi", say: "Phool-jhari", means: "the sparkler: small, golden and bright",
+        hi: "फुलझड़ी", hiMeans: "छोटी, सुनहरी और चमकदार" },
+      { word: "Anaar", say: "Anaar", means: "the flower-pot firework: a fountain of sparks",
+        hi: "अनार", hiMeans: "चिंगारियों का फव्वारा" },
+      { word: "Dhamaka", say: "Dhamaka", means: "the big bang: the biggest blast of the night",
+        hi: "धमाका", hiMeans: "रात का सबसे बड़ा धमाका" }
+    ]
   },
 
   // ---- Big screens ---------------------------------------------------------------
