@@ -1,0 +1,8 @@
+<!doctype html><meta charset="utf-8"><title>Voices</title>
+<style>body{font:16px/1.5 system-ui;margin:24px;background:#2a0a1e;color:#fbeedd}button{font:inherit;padding:8px 14px;margin:4px;border-radius:8px;border:0;cursor:pointer}b{color:#f2c45a}</style>
+<h2>Voices in this browser</h2><p>Natural voices are marked <b>(Natural)</b>. Press a button to hear one.</p><div id="out">Loading…</div>
+<script>
+// Lists the speech voices this browser offers, with a button to hear each Hindi or English (India) voice.
+function show(){ var v=speechSynthesis.getVoices().filter(function(x){return /^(hi|en-IN|en-GB)/i.test(x.lang)}); var o=document.getElementById('out'); o.innerHTML=''; v.forEach(function(x){ var b=document.createElement('button'); b.textContent=x.lang+' · '+x.name; b.onclick=function(){ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(/^hi/i.test(x.lang)?'अब तीसरे इनाम की बारी है: फुलझड़ी! बहुत-बहुत बधाई!':'Now drawing the third prize: Phool-jhari! Congratulations!'); u.voice=x; u.lang=x.lang; speechSynthesis.speak(u); }; o.appendChild(b); o.appendChild(document.createElement('br')); }); if(!v.length) o.textContent='No Hindi or English (India/UK) voices found.'; document.title='Voices: '+v.map(function(x){return x.name}).join(' | '); }
+speechSynthesis.onvoiceschanged=show; setTimeout(show,500);
+</script>

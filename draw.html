@@ -270,14 +270,16 @@ function sayEn(text) { MEANINGS.forEach(function (m) { text = text.replace(wordR
 function sayHi(text) { MEANINGS.forEach(function (m) { if (m.hi) text = text.replace(wordRe(m.word, "gi"), function (all, pre) { return pre + m.hi; }); }); return text.replace(/Grand Prize/i, "ग्रैंड प्राइज़").replace(/\bPrize\b/i, "इनाम"); }
 
 var voices = [];
-function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } paintVoice(); }
+function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } paintVoice(); if (voices.length) setTimeout(naturalTip, 1500); }
 if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 function pickVoice(langs) {
   for (var i = 0; i < langs.length; i++) {
     var want = langs[i].toLowerCase();
     var list = voices.filter(function (v) { return v.lang.toLowerCase().replace("_", "-").indexOf(want) === 0; });
     if (!list.length) continue;
-    return list.filter(function (v) { return /natural|online|neural/i.test(v.name); })[0] ||
+    // Edge's neural voices sound human (e.g. "Microsoft Neerja Online (Natural)", "Microsoft Swara Online (Natural)")
+    return list.filter(function (v) { return /natural/i.test(v.name); })[0] ||
+      list.filter(function (v) { return /online|neural/i.test(v.name); })[0] ||
       list.filter(function (v) { return /google/i.test(v.name); })[0] || list[0];
   }
   return null;
@@ -315,6 +317,14 @@ function announceWinner(prize, w) {
   var en = "The " + rankEn(prize) + " goes to... " + w.name + (w.host ? ", guest of " + w.host : "") + "! Congratulations!";
   var hi = (RANK_HI[n] ? RANK_HI[n] + " इनाम" : "यह इनाम") + " जीता है... " + w.name + " ने! बहुत-बहुत बधाई!";
   hush(); announce(en, hi, 1300);
+}
+var tipShown = false;
+function naturalTip() {
+  if (tipShown || voiceMode === "off" || !voices.length) return;
+  var ev = enVoice(), hv = hiVoice();
+  if ((ev && /natural/i.test(ev.name)) && (!hv || /natural/i.test(hv.name))) return;
+  tipShown = true;
+  R.toast("Tip: open this page in Microsoft Edge for natural, human-sounding voices", 7000);
 }
 function voiceLabel() { return { both: "Voice: English + Hindi", english: "Voice: English", hindi: "Voice: Hindi", off: "Voice off" }[voiceMode]; }
 function paintVoice() {
