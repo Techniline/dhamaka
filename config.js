@@ -48,7 +48,7 @@ window.DHAMAKA = {
     prefix: "DW-",                        // draw numbers look like DW-001
     // Default prizes, in the order they are drawn (first line is drawn first).
     // You can change them on the night in admin.html without touching this file.
-    prizes: ["Phuljhadi Prize", "Anaar Prize", "Dhamaka Grand Prize"],
+    prizes: ["3rd Prize · Phuljhadi", "2nd Prize · Anaar", "1st Prize · Dhamaka Grand Prize"],
     // Timing of one draw in milliseconds (about 21 seconds from Draw to the name)
     pace: { shuffle: 4000, gap: 900, digit: 3000, digitTurns: 2, last: 9000, lastTurns: 9 }
   },

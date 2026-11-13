@@ -35,7 +35,7 @@ var CLOUD = 'xccqslt2';            // Cloudinary cloud name (public), same as co
 var CLOUD_ID = /^(dhamaka\/)?[A-Za-z0-9_-]{6,64}$/; // public IDs from the dhamaka upload preset
 var TZ = 'Asia/Dubai';
 var DRAW_PREFIX = 'DW-';
-var DEFAULT_PRIZES = ['Phuljhadi Prize', 'Anaar Prize', 'Dhamaka Grand Prize'];
+var DEFAULT_PRIZES = ['3rd Prize · Phuljhadi', '2nd Prize · Anaar', '1st Prize · Dhamaka Grand Prize'];
 
 var MAX_BYTES = 15 * 1024 * 1024;
 var LIST_CACHE_KEY = 'approved-list';
