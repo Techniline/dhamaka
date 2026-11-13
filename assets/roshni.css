@@ -1,0 +1,58 @@
+/* Roshni: shared look for every page. Colours come from config.js (--background, --marigold, ...). */
+:root {
+  --ink: var(--cream, #fbeedd); --dim: #d9c2b4; --faint: #a98c80;
+  --hair: rgba(255, 255, 255, 0.10); --hair-strong: rgba(255, 255, 255, 0.18);
+  --gold-hair: rgba(var(--gold-rgb), 0.35);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --display: 'Yatra One', 'Poppins', serif;
+  --heading: 'Poppins', 'Manrope', sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; color: var(--ink); background: var(--background) url("rangoli-tile.svg"); background-size: 96px 96px; font-family: 'Manrope', system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+[hidden] { display: none !important; }
+img { max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--gold); }
+
+/* marigold garland across the top of phone pages */
+.toran { height: 56px; background: url("toran.svg") repeat-x; background-size: auto 56px; pointer-events: none; }
+
+.wordmark { font-family: var(--display); font-weight: 400; color: var(--gold); letter-spacing: 0.01em; line-height: 1; }
+.eyebrow { font-size: 11.5px; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--marigold); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; border: 1px solid transparent; font-weight: 800; font-size: 15px; cursor: pointer; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: transform .15s var(--ease), background .2s, border-color .2s; white-space: nowrap; }
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: linear-gradient(135deg, var(--gold), var(--marigold) 45%, var(--saffron)); color: #3a1206; box-shadow: 0 10px 26px -12px rgba(var(--saffron-rgb), 0.9); }
+.btn-ghost { background: rgba(0, 0, 0, 0.25); color: var(--ink); border-color: var(--hair-strong); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.btn-danger { background: rgba(214, 51, 108, 0.12); color: #ff9cbf; border-color: rgba(214, 51, 108, 0.45); }
+.btn-sm { min-height: 38px; padding: 0 14px; font-size: 13px; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+
+/* inputs */
+.input { width: 100%; min-height: 48px; padding: 0 16px; border-radius: 14px; border: 1px solid var(--hair-strong); background: rgba(0, 0, 0, 0.3); color: var(--ink); font-size: 16px; }
+.input:focus, textarea.input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(var(--gold-rgb), 0.18); }
+textarea.input { padding: 12px 16px; min-height: 160px; resize: vertical; line-height: 1.5; }
+.input::placeholder { color: var(--faint); }
+
+/* chips (filters, tabs) */
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--hair-strong); background: rgba(0, 0, 0, 0.2); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip.on { background: var(--marigold); border-color: var(--marigold); color: #3a1206; }
+.chip b { font-weight: 800; opacity: 0.8; }
+
+.card { background: rgba(var(--surface-rgb), 0.92); border: 1px solid var(--hair-strong); border-radius: 18px; }
+
+.toast { position: fixed; left: 16px; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 200; max-width: 440px; margin: 0 auto; padding: 14px 18px; border-radius: 14px; background: rgba(30, 6, 20, 0.97); border: 1px solid var(--gold-hair); font-size: 14px; text-align: center; opacity: 0; transform: translateY(10px); pointer-events: none; transition: opacity .25s, transform .25s var(--ease); }
+.toast.show { opacity: 1; transform: none; }
+
+.foot { text-align: center; padding: 30px 20px calc(36px + env(safe-area-inset-bottom)); color: var(--faint); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; }
+.foot img { height: 22px; width: auto; vertical-align: middle; margin-left: 8px; }
+
+/* big screens: fixed canvas from config.js (16:9 = 1920 x 1080), scaled by screen.js */
+html.cursor-off, html.cursor-off * { cursor: none !important; }
+.screen { position: fixed; left: 0; top: 0; width: var(--screen-w, 1920px); height: var(--screen-h, 1080px); transform-origin: 0 0; overflow: hidden; background: var(--background) url("rangoli-tile.svg"); background-size: 96px 96px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

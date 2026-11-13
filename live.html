@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#2a0a1e">
+<title>Roshni · Live album</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest-live.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Album">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<link rel="stylesheet" href="assets/roshni.css">
+<style>
+  html, body { height: 100%; overflow: hidden; background: #14040e; }
+  .toran-top { position: absolute; left: 0; right: 0; top: 0; height: 84px; background: url("assets/toran.svg") repeat-x; background-size: auto 84px; z-index: 4; }
+  .screen::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: linear-gradient(90deg, var(--saffron), var(--gold), var(--saffron)); z-index: 5; }
+
+  /* left panel */
+  .panel { position: absolute; left: 0; top: 0; bottom: 0; width: 640px; padding: 120px 0 0 90px; z-index: 3; background: linear-gradient(90deg, rgba(20,4,14,0.85), rgba(20,4,14,0.6) 80%, transparent); }
+  .panel .art { position: absolute; left: -260px; bottom: -260px; width: 760px; opacity: 0.16; animation: turn 160s linear infinite; will-change: transform; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+  .mark { width: 120px; height: 120px; display: block; position: relative; }
+  .wm { position: relative; font-family: var(--display); font-size: 112px; line-height: 1; color: var(--gold); margin-top: 4px; }
+  .yr { position: relative; font: 800 22px 'Manrope', sans-serif; letter-spacing: 0.34em; text-transform: uppercase; color: var(--cream); margin-top: 10px; }
+  .live { position: relative; margin-top: 36px; display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 800; letter-spacing: 5px; text-transform: uppercase; color: var(--marigold); }
+  .live::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--saffron); box-shadow: 0 0 16px var(--saffron); animation: blink 1.6s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: 0.35; } }
+  .add { position: relative; margin-top: 40px; display: flex; gap: 26px; align-items: center; }
+  .add .qr { flex: none; width: 220px; height: 220px; padding: 14px; border-radius: 22px; background: #fff; box-shadow: 0 0 0 5px rgba(var(--gold-rgb),0.5), 0 0 50px rgba(var(--marigold-rgb),0.35); }
+  .add .qr img, .add .qr canvas { width: 100% !important; height: 100% !important; display: block; }
+  .add b { display: block; font: 800 32px/1.15 'Poppins', sans-serif; }
+  .add span { display: block; margin-top: 8px; font-size: 20px; line-height: 1.45; color: var(--dim); font-weight: 700; }
+  .host { position: absolute; left: 90px; bottom: 60px; z-index: 3; display: flex; align-items: center; gap: 16px; font-size: 15px; font-weight: 800; letter-spacing: 5px; text-transform: uppercase; color: var(--faint); }
+  .host img { height: 40px; }
+
+  /* photo stage on the right */
+  .stage { position: absolute; left: 680px; top: 96px; width: 1180px; height: 920px; }
+  .scene { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 40px; opacity: 0; transition: opacity 1.3s var(--ease); }
+  .scene.on { opacity: 1; }
+  .card { position: relative; border-radius: 20px; overflow: hidden; background: #000; box-shadow: 0 40px 90px -30px rgba(0,0,0,0.95), 0 0 0 2px rgba(var(--gold-rgb),0.4); }
+  .card img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .scene.on .card img { animation: zoom 10s linear forwards; }
+  @keyframes zoom { from { transform: scale(1); } to { transform: scale(1.03); } }
+  .card .new { position: absolute; left: 18px; top: 18px; padding: 8px 16px; border-radius: 999px; background: var(--marigold); color: #3a1206; font-size: 16px; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; }
+  .empty { position: absolute; left: 680px; top: 96px; width: 1180px; height: 920px; display: grid; place-items: center; text-align: center; border-radius: 26px; border: 2px dashed var(--gold-hair); background: rgba(20,4,14,0.45); transition: opacity 1s var(--ease); }
+  .empty.gone { opacity: 0; }
+  .empty img { width: 240px; margin: 0 auto 20px; display: block; }
+  .empty b { display: block; font: 800 60px/1.1 'Poppins', sans-serif; }
+  .empty b em { font-style: normal; color: var(--gold); }
+  .empty span { display: block; margin-top: 18px; font-size: 28px; color: var(--dim); font-weight: 700; }
+</style>
+</head>
+<body>
+<main class="screen" id="screen">
+  <div class="toran-top" aria-hidden="true"></div>
+  <aside class="panel">
+    <img class="art" src="assets/mandala.svg" alt="" aria-hidden="true">
+    <img class="mark" data-cfg="logos.event" alt="">
+    <div class="wm" data-cfg="eventName"></div>
+    <div class="yr" data-cfg="tagline"></div>
+    <div class="live" id="live">Live album</div>
+    <div class="add">
+      <div class="qr" id="qr" aria-label="QR code to add your photo"></div>
+      <div><b>Add your photo</b><span>Scan, snap, and you're on the big screen</span></div>
+    </div>
+  </aside>
+  <div class="host">Hosted by <img data-cfg="logos.company" alt="Techniline Electronics"></div>
+
+  <div class="empty" id="empty"><div><img src="assets/diya.svg" alt=""><b>Tonight's photos <em>appear here</em></b><span>Scan the code, take a photo, and watch for it</span></div></div>
+  <div class="stage"><div class="scene" id="s0"></div><div class="scene" id="s1"></div></div>
+</main>
+<script src="assets/api.js"></script>
+<script src="assets/fullscreen.js"></script>
+<script src="assets/screen.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Live album for the big screen (from the Capture the Moment kit): approved
+// photos one landscape or two portraits at a time; new photos jump the queue.
+var CFG = R.cfg, SHOW_MS = (CFG.slideSeconds || 9) * 1000, REFRESH_MS = 15000;
+var STAGE_W = 1180, STAGE_H = 920, GAP = 40;
+R.brand();
+if (window.QRCode) new QRCode(document.getElementById("qr"), { text: CFG.siteUrl, width: 512, height: 512, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.Q });
+
+var photos = [], queue = [], seen = {}, firstLoad = true, cur = -1, layer = 0, timer = null;
+function photoUrl(p, w) {
+  if (p.c) return "https://res.cloudinary.com/" + CFG.cloudinaryCloudName + "/image/upload/f_auto,q_auto,c_limit,w_" + w + "/" + (p.v ? "v" + p.v + "/" : "") + p.id + ".jpg";
+  return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(p.id) + "&sz=w" + w;
+}
+function isWide(p) { return p.w && p.h && p.w > p.h * 1.05; }
+function refresh() {
+  return fetch(CFG.api + "?action=list&t=" + Date.now()).then(function (r) { return r.json(); }).then(function (res) {
+    if (!res || !res.ok) return;
+    var list = res.photos || [], ids = {};
+    list.forEach(function (p) { ids[p.id] = true; });
+    var fresh = list.filter(function (p) { return !seen[p.id]; });
+    fresh.forEach(function (p) { seen[p.id] = true; if (!firstLoad) p.isNew = true; });
+    queue = (firstLoad ? [] : fresh).concat(queue).filter(function (p) { return ids[p.id]; });
+    firstLoad = false; photos = list;
+    document.getElementById("live").textContent = "Live album · " + list.length + (list.length === 1 ? " photo" : " photos");
+    if (list.length && !timer) next();
+    if (!list.length) { stop(); document.getElementById("empty").classList.remove("gone"); }
+  }).catch(function () {});
+}
+function stop() { clearTimeout(timer); timer = null; document.querySelectorAll(".scene").forEach(function (s) { s.classList.remove("on"); }); }
+function take() { if (queue.length) return queue.shift(); if (!photos.length) return null; cur = (cur + 1) % photos.length; return photos[cur]; }
+function nextScene() {
+  var a = take(); if (!a) return [];
+  if (isWide(a) || photos.length < 2) return [a];
+  for (var tries = 0; tries < photos.length; tries++) {
+    var b = take();
+    if (!b || b.id === a.id) break;
+    if (!isWide(b)) return [a, b];
+    queue.unshift(b); break;
+  }
+  return [a];
+}
+function cardSize(p, count) {
+  var ar = (p.w && p.h) ? p.w / p.h : 0.652, maxW = count === 2 ? (STAGE_W - GAP) / 2 : STAGE_W;
+  var h = STAGE_H, w = h * ar;
+  if (w > maxW) { w = maxW; h = w / ar; }
+  return { w: Math.round(w), h: Math.round(h) };
+}
+function next() {
+  var shots = nextScene();
+  if (!shots.length) { timer = null; return; }
+  var urls = shots.map(function (p) { return photoUrl(p, isWide(p) ? 2400 : 1400); }), loaded = 0, failed = false;
+  urls.forEach(function (u) {
+    var im = new Image();
+    im.onload = function () { if (++loaded === urls.length) show(shots, urls); };
+    im.onerror = function () { if (!failed) { failed = true; timer = setTimeout(next, 500); } };
+    im.src = u;
+  });
+  timer = timer || -1;
+}
+function show(shots, urls) {
+  layer = 1 - layer;
+  var s = document.getElementById("s" + layer), other = document.getElementById("s" + (1 - layer));
+  s.innerHTML = "";
+  shots.forEach(function (p, i) {
+    var size = cardSize(p, shots.length), card = document.createElement("div");
+    card.className = "card"; card.style.width = size.w + "px"; card.style.height = size.h + "px";
+    var img = document.createElement("img"); img.src = urls[i]; img.alt = ""; card.appendChild(img);
+    if (p.isNew) { var tag = document.createElement("div"); tag.className = "new"; tag.textContent = "Just in"; card.appendChild(tag); p.isNew = false; }
+    s.appendChild(card);
+  });
+  s.classList.remove("on"); void s.offsetWidth;
+  s.classList.add("on"); other.classList.remove("on");
+  document.getElementById("empty").classList.add("gone");
+  timer = setTimeout(next, SHOW_MS);
+}
+refresh();
+setInterval(refresh, REFRESH_MS);
+</script>
+</body>
+</html>

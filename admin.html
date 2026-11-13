@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2a0a1e">
+<title>Roshni · Admin</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest-admin.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Admin">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@600;700;800&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<link rel="stylesheet" href="assets/roshni.css">
+<style>
+  .top { padding: max(12px, env(safe-area-inset-top)) 16px 0; background: #200716; border-bottom: 1px solid var(--gold-hair); position: sticky; top: 0; z-index: 10; }
+  .bar1 { display: flex; align-items: center; gap: 10px; max-width: 1100px; margin: 0 auto; }
+  .bar1 img { width: 38px; height: 38px; }
+  .bar1 .wordmark { font-size: 28px; }
+  .bar1 .what { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+  .tabs { display: flex; gap: 4px; max-width: 1100px; margin: 10px auto 0; overflow-x: auto; }
+  .tabs button { flex: none; padding: 12px 16px; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--dim); font-weight: 800; cursor: pointer; }
+  .tabs button.on { color: var(--gold); border-bottom-color: var(--gold); }
+  .tabs b { font-weight: 800; color: var(--faint); margin-left: 4px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 18px 16px 80px; }
+  h2 { font: 800 22px/1.2 var(--heading); margin: 0 0 6px; }
+  .lead { color: var(--dim); margin: 0 0 16px; font-size: 14px; }
+  .box { padding: 16px; margin-bottom: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .muted { color: var(--faint); font-size: 13px; }
+
+  /* photos (from the kit's approval page) */
+  .switch { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; }
+  .switch .tr { width: 52px; height: 30px; border-radius: 999px; background: rgba(255,255,255,0.15); position: relative; transition: background .2s; flex: none; }
+  .switch .tr::after { content: ""; position: absolute; left: 3px; top: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: transform .2s var(--ease); }
+  .switch.on .tr { background: var(--marigold); }
+  .switch.on .tr::after { transform: translateX(22px); }
+  .switch b { display: block; }
+  .ptabs { margin: 0 0 12px; }
+  .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .ph { position: relative; border-radius: 14px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid var(--hair); }
+  .ph .thumb { display: block; width: 100%; aspect-ratio: 4 / 5; border: 0; background: #1d0614 center / cover no-repeat; cursor: zoom-in; }
+  .ph .meta { font-size: 12px; color: var(--faint); padding: 6px 10px 0; }
+  .ph .acts { display: flex; gap: 6px; padding: 8px 10px 10px; }
+  .ph .acts .btn { flex: 1; padding: 0 8px; }
+  .ph .del { position: absolute; right: 8px; top: 8px; width: 34px; height: 34px; border-radius: 50%; border: 0; background: rgba(20,4,14,0.8); color: #ff9cbf; cursor: pointer; display: grid; place-items: center; }
+
+  /* employees */
+  .people { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .people th { text-align: left; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--faint); padding: 8px; border-bottom: 1px solid var(--hair-strong); }
+  .people td { padding: 8px; border-bottom: 1px solid var(--hair); vertical-align: middle; }
+  .people td.n { color: var(--gold); font-weight: 800; white-space: nowrap; }
+  .people td.a { text-align: right; white-space: nowrap; }
+  .people .btn { min-height: 34px; padding: 0 12px; font-size: 12.5px; }
+  .people input { min-height: 36px; font-size: 14px; padding: 0 10px; border-radius: 10px; }
+  @media (max-width: 640px) { .people .hide-sm { display: none; } }
+  .preview { margin-top: 10px; font-size: 13px; color: var(--dim); }
+  .preview table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .preview td { padding: 4px 6px; border-bottom: 1px solid var(--hair); }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stats div { padding: 12px; border-radius: 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--gold-hair); }
+  .stats b { display: block; font: 800 26px var(--heading); color: var(--gold); }
+  .stats span { font-size: 12px; color: var(--dim); }
+
+  /* links */
+  .links { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+  .links a { display: block; padding: 14px 16px; border-radius: 16px; text-decoration: none; color: var(--ink); background: rgba(var(--surface-rgb), 0.9); border: 1px solid var(--hair-strong); }
+  .links a:hover { border-color: var(--gold); }
+  .links b { display: block; color: var(--gold); }
+  .links span { font-size: 13px; color: var(--dim); }
+
+  .viewer { position: fixed; inset: 0; z-index: 60; background: rgba(15,3,10,0.94); display: grid; place-items: center; padding: 16px; }
+  .viewer img { max-width: 100%; max-height: 80svh; border-radius: 10px; }
+  .viewer .row { justify-content: center; margin-top: 12px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar1"><img data-cfg="logos.event" alt=""><div><div class="wordmark" data-cfg="eventName"></div><div class="what">Admin</div></div></div>
+  <nav class="tabs" id="tabs">
+    <button type="button" data-tab="people" class="on">Employees <b id="n-people"></b></button>
+    <button type="button" data-tab="prizes">Prizes</button>
+    <button type="button" data-tab="photos">Photos <b id="n-photos"></b></button>
+    <button type="button" data-tab="screens">Pages and screens</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ employees ============ -->
+  <section id="tab-people">
+    <div class="stats"><div><b id="s-people">0</b><span>employees on the list</span></div><div><b id="s-in">0</b><span>checked in</span></div><div><b id="s-g">0</b><span>guests</span></div><div><b id="s-e">0</b><span>draw entries</span></div></div>
+
+    <div class="card box">
+      <h2>Add the employee list</h2>
+      <p class="lead">Paste from Excel or type one person per line: <b>Name</b>, then optionally <b>Department</b> and <b>Employee ID</b>, separated by commas or tabs. Or choose a CSV file with those columns (a header row is fine).</p>
+      <textarea class="input" id="paste" placeholder="Aisha Rahman, Finance, EMP-0412&#10;Omar Haddad, Sales, EMP-0108&#10;Priya Nair, Marketing"></textarea>
+      <div class="row" style="margin-top:10px">
+        <label class="btn btn-ghost btn-sm" for="csv-file">Choose CSV file</label>
+        <input type="file" id="csv-file" accept=".csv,text/csv,.txt" hidden>
+        <span class="muted" id="parsed"></span>
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost btn-sm" id="replace" type="button">Replace the list</button>
+        <button class="btn btn-primary btn-sm" id="import" type="button">Add to the list</button>
+      </div>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <div class="card box">
+      <div class="row" style="justify-content:space-between">
+        <h2>Employees</h2>
+        <div class="row">
+          <input class="input" id="filter" placeholder="Search" style="width:180px;min-height:38px;font-size:14px">
+          <button class="btn btn-ghost btn-sm" id="add-one" type="button">Add one</button>
+          <button class="btn btn-ghost btn-sm" id="export" type="button">Export CSV</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+        <table class="people"><thead><tr><th>Name</th><th>Department</th><th class="hide-sm">Employee ID</th><th>Draw no</th><th class="hide-sm">Guests</th><th></th></tr></thead><tbody id="rows"></tbody></table>
+      </div>
+      <p class="muted" id="rows-empty" hidden>No employees yet. Paste the list above.</p>
+    </div>
+
+    <div class="card box">
+      <h2>Clear everything</h2>
+      <p class="lead">Removes all employees, check-ins, guests, winners and the draw log, and draw numbers start again from <span id="first-no"></span>. Use this only to start over before the event.</p>
+      <button class="btn btn-danger btn-sm" id="clear" type="button">Clear everything</button>
+    </div>
+  </section>
+
+  <!-- ============ prizes ============ -->
+  <section id="tab-prizes" hidden>
+    <div class="card box">
+      <h2>Prizes</h2>
+      <p class="lead">One prize per line, <b>in the order they are drawn</b>: the first line is drawn first, so put the top prize last for a big finish. The number of lines is the number of winners. Example: <i>3rd prize · Smart watch</i></p>
+      <textarea class="input" id="prizes" style="min-height:200px"></textarea>
+      <div class="row" style="margin-top:10px"><span class="muted" id="prize-count"></span><span style="flex:1"></span><button class="btn btn-primary btn-sm" id="save-prizes" type="button">Save prizes</button></div>
+    </div>
+    <div class="card box">
+      <h2>Winners so far</h2>
+      <div id="winners" class="muted">No winners yet.</div>
+    </div>
+  </section>
+
+  <!-- ============ photos ============ -->
+  <section id="tab-photos" hidden>
+    <div class="card box">
+      <label class="switch" id="auto-sw"><input type="checkbox" id="auto"><span class="tr"></span><span><b>Auto-approve</b><span class="muted" id="auto-hint">New photos wait for approval</span></span></label>
+    </div>
+    <div class="chips ptabs" id="ptabs">
+      <button class="chip on" type="button" data-s="p">Waiting <b id="c-p">0</b></button>
+      <button class="chip" type="button" data-s="a">In the album <b id="c-a">0</b></button>
+      <button class="chip" type="button" data-s="h">Hidden <b id="c-h">0</b></button>
+    </div>
+    <div class="pgrid" id="pgrid"></div>
+    <p class="muted" id="p-empty" hidden></p>
+  </section>
+
+  <!-- ============ links ============ -->
+  <section id="tab-screens" hidden>
+    <h2>Pages and screens</h2>
+    <p class="lead">Big screens: open in Chrome on the TV laptop and press <b>F</b> for full screen.</p>
+    <div class="links">
+      <a href="checkin.html"><b>Check-in</b><span>For the door team, on phones or a tablet</span></a>
+      <a href="draw.html"><b>Raffle draw</b><span>Big screen. Space draws, M mutes, L shows the log</span></a>
+      <a href="draw.html?demo=1"><b>Raffle draw: demo</b><span>150 sample entries to rehearse. Saves nothing</span></a>
+      <a href="live.html"><b>Live album</b><span>Big screen slideshow with an "Add your photo" QR</span></a>
+      <a href="qr-screen.html?for=photos"><b>QR screen: photos</b><span>Big screen</span></a>
+      <a href="qr-screen.html?for=checkin"><b>QR screen: check-in</b><span>Big screen, for the door team</span></a>
+      <a href="qr.html?for=photos"><b>A4 poster: photos</b><span>Print or save as PDF</span></a>
+      <a href="qr.html?for=checkin"><b>A4 poster: check-in</b><span>Print or save as PDF</span></a>
+      <a href="index.html"><b>Guest photo page</b><span>Capture the moment and the album</span></a>
+    </div>
+  </section>
+</main>
+
+<div class="viewer" id="viewer" hidden><div><img id="viewer-img" alt=""><div class="row" id="viewer-acts"></div></div></div>
+
+<script src="assets/api.js"></script>
+<script src="assets/fullscreen.js"></script>
+<script>
+var $ = function (id) { return document.getElementById(id); };
+R.brand();
+$("first-no").textContent = R.drawNo(1);
+var state = { people: [], prizes: [], winners: [] }, editing = 0;
+
+// ---------------------------------------------------------------- tabs
+function showTab(t) {
+  document.querySelectorAll("#tabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === t); });
+  ["people", "prizes", "photos", "screens"].forEach(function (k) { $("tab-" + k).hidden = k !== t; });
+  history.replaceState(null, "", "#" + t);
+  if (t === "photos") loadPhotos();
+}
+$("tabs").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) showTab(b.dataset.tab); });
+
+// ---------------------------------------------------------------- people
+function load() {
+  return R.get("people").then(function (res) {
+    state = res;
+    paintPeople(); paintPrizes();
+  }).catch(function (e) { R.toast(e.message || "Couldn't load", 5000); });
+}
+function paintPeople() {
+  var t = R.totals(state.people);
+  $("s-people").textContent = t.people; $("s-in").textContent = t.inside; $("s-g").textContent = t.guests; $("s-e").textContent = t.entries;
+  $("n-people").textContent = t.people || "";
+  var q = $("filter").value.trim().toLowerCase();
+  var list = state.people.filter(function (p) { return !q || (p.name + " " + p.dept + " " + p.code).toLowerCase().indexOf(q) >= 0; })
+    .sort(function (a, b) { return a.name.localeCompare(b.name); });
+  var html = "";
+  if (editing === -1) html += editRow({ id: 0, name: "", dept: "", code: "" });
+  list.forEach(function (p) {
+    if (editing === p.id) { html += editRow(p); return; }
+    html += '<tr><td>' + R.esc(p.name) + '</td><td>' + R.esc(p.dept) + '</td><td class="hide-sm">' + R.esc(p.code) + '</td><td class="n">' + (p.n ? R.drawNo(p.n) : "") + '</td><td class="hide-sm">' + ((p.g || []).length || "") + '</td>' +
+      '<td class="a"><button class="btn btn-ghost" data-edit="' + p.id + '" type="button">Edit</button> <button class="btn btn-ghost" data-del="' + p.id + '" type="button" aria-label="Delete ' + R.esc(p.name) + '">Delete</button></td></tr>';
+  });
+  $("rows").innerHTML = html;
+  $("rows-empty").hidden = state.people.length > 0;
+  if (editing) { var f = $("e-name"); if (f) f.focus(); }
+}
+function editRow(p) {
+  return '<tr data-row="' + p.id + '"><td><input class="input" id="e-name" value="' + R.esc(p.name) + '" placeholder="Name"></td><td><input class="input" id="e-dept" value="' + R.esc(p.dept) + '" placeholder="Department"></td>' +
+    '<td class="hide-sm"><input class="input" id="e-code" value="' + R.esc(p.code) + '" placeholder="ID"></td><td></td><td class="hide-sm"></td>' +
+    '<td class="a"><button class="btn btn-primary" data-save="' + p.id + '" type="button">Save</button> <button class="btn btn-ghost" data-cancel type="button">Cancel</button></td></tr>';
+}
+$("filter").addEventListener("input", paintPeople);
+$("add-one").addEventListener("click", function () { editing = -1; $("filter").value = ""; paintPeople(); });
+$("export").addEventListener("click", function () { R.exportCheckins(state.people); });
+$("rows").addEventListener("click", function (e) {
+  var b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.edit) { editing = Number(b.dataset.edit); paintPeople(); }
+  else if (b.hasAttribute("data-cancel")) { editing = 0; paintPeople(); }
+  else if (b.dataset.save !== undefined) savePerson(Number(b.dataset.save));
+  else if (b.dataset.del) {
+    var p = state.people.filter(function (x) { return x.id === Number(b.dataset.del); })[0];
+    if (!p || !confirm("Delete " + p.name + " from the list?" + (p.n ? " They're checked in: their draw entries (and any guests) leave the draw." : ""))) return;
+    R.post({ action: "deletePerson", id: p.id }).then(function () { R.toast("Deleted " + p.name); load(); }).catch(function (e) { R.toast(e.message, 5000); });
+  }
+});
+$("rows").addEventListener("keydown", function (e) {
+  if (e.key === "Enter" && e.target.tagName === "INPUT") { var s = $("rows").querySelector("[data-save]"); if (s) s.click(); }
+  if (e.key === "Escape") { editing = 0; paintPeople(); }
+});
+function savePerson(id) {
+  var body = { action: "savePerson", name: $("e-name").value, dept: $("e-dept").value, code: $("e-code").value };
+  if (id) body.id = id;
+  R.post(body).then(function () { editing = 0; R.toast("Saved"); load(); }).catch(function (e) { R.toast(e.message, 5000); });
+}
+
+// ---- import: pasted text or a CSV file
+var parsedRows = [];
+function splitLine(line, sep) {
+  var out = [], cur = "", q = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (q) { if (ch === '"' && line[i + 1] === '"') { cur += '"'; i++; } else if (ch === '"') q = false; else cur += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === sep) { out.push(cur); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out.map(function (s) { return s.trim(); });
+}
+function parseList(text) {
+  var lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).filter(function (l) { return l.trim(); });
+  if (!lines.length) return [];
+  var first = lines[0], sep = first.indexOf("\t") >= 0 ? "\t" : (first.split(";").length > first.split(",").length ? ";" : ",");
+  var rows = lines.map(function (l) { return splitLine(l, sep); });
+  var col = { name: 0, dept: 1, code: 2 }, head = rows[0].map(function (h) { return h.toLowerCase(); });
+  if (head.some(function (h) { return /name/.test(h); })) {
+    var find = function (re) { for (var i = 0; i < head.length; i++) if (re.test(head[i])) return i; return -1; };
+    var first_ = find(/first/), last_ = find(/last|surname/);
+    col = { name: find(/full ?name|^name$|employee name|name/), dept: find(/dep|division|team|section/), code: find(/emp.*(id|no|code|number)|staff.*(id|no)|^id$|code|number/) };
+    rows.shift();
+    if (first_ >= 0 && last_ >= 0) return rows.map(function (r) { return { name: ((r[first_] || "") + " " + (r[last_] || "")).trim(), dept: col.dept >= 0 ? r[col.dept] : "", code: col.code >= 0 ? r[col.code] : "" }; }).filter(function (r) { return r.name.length > 1; });
+  }
+  return rows.map(function (r) { return { name: r[col.name] || "", dept: col.dept >= 0 ? r[col.dept] || "" : "", code: col.code >= 0 ? r[col.code] || "" : "" }; })
+    .filter(function (r) { return r.name.replace(/\s+/g, " ").length > 1; });
+}
+function preview() {
+  parsedRows = parseList($("paste").value);
+  $("parsed").textContent = parsedRows.length ? parsedRows.length + (parsedRows.length === 1 ? " person" : " people") + " found" : "";
+  if (!parsedRows.length) { $("preview").innerHTML = ""; return; }
+  var html = "First rows:<table>";
+  parsedRows.slice(0, 5).forEach(function (r) { html += "<tr><td>" + R.esc(r.name) + "</td><td>" + R.esc(r.dept) + "</td><td>" + R.esc(r.code) + "</td></tr>"; });
+  $("preview").innerHTML = html + "</table>" + (parsedRows.length > 5 ? "…and " + (parsedRows.length - 5) + " more" : "");
+}
+$("paste").addEventListener("input", preview);
+$("csv-file").addEventListener("change", function () {
+  var f = this.files[0]; if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function () { $("paste").value = rd.result; preview(); };
+  rd.readAsText(f); this.value = "";
+});
+function doImport(replace) {
+  if (!parsedRows.length) { R.toast("Paste the list or choose a CSV first"); return; }
+  if (replace && !confirm("Replace the whole list with these " + parsedRows.length + " people? Everyone now on the list is removed.")) return;
+  R.toast("Saving " + parsedRows.length + " people…", 8000);
+  // big lists go in batches so each request stays small
+  var batches = [];
+  for (var i = 0; i < parsedRows.length; i += 200) batches.push(parsedRows.slice(i, i + 200));
+  var added = 0, skipped = 0;
+  batches.reduce(function (p, rows, k) {
+    return p.then(function () { return R.post({ action: "importPeople", rows: rows, replace: replace && k === 0 }); })
+      .then(function (res) { added += res.added; skipped += res.skipped; });
+  }, Promise.resolve()).then(function () {
+    R.toast("Added " + added + (skipped ? ", skipped " + skipped + " already on the list" : ""), 5000);
+    $("paste").value = ""; preview(); load();
+  }).catch(function (e) { R.toast("Didn't import: " + e.message, 6000); load(); });
+}
+$("import").addEventListener("click", function () { doImport(false); });
+$("replace").addEventListener("click", function () { doImport(true); });
+$("clear").addEventListener("click", function () {
+  var typed = prompt("This removes all employees, check-ins, guests, winners and the draw log. Type CLEAR to confirm.");
+  if (typed === null) return;
+  R.post({ action: "clearPeople", confirm: String(typed).trim().toUpperCase() }).then(function () { R.toast("Everything cleared"); load(); }).catch(function (e) { R.toast(e.message, 5000); });
+});
+
+// ---------------------------------------------------------------- prizes
+function paintPrizes() {
+  if (document.activeElement !== $("prizes")) $("prizes").value = (state.prizes || []).join("\n");
+  countPrizes();
+  var w = state.winners || [];
+  $("winners").innerHTML = w.length ? w.map(function (x) {
+    return "<div style='padding:6px 0;border-top:1px solid var(--hair)'><b style='color:var(--gold)'>" + R.esc(x.prize) + "</b> · " + R.drawNo(x.n) + " " + R.esc(x.name) + (x.host ? " <span class='muted'>(guest of " + R.esc(x.host) + ")</span>" : "") + "</div>";
+  }).join("") : "No winners yet.";
+}
+function prizeLines() { return $("prizes").value.split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean); }
+function countPrizes() { var n = prizeLines().length; $("prize-count").textContent = n + (n === 1 ? " winner" : " winners") + " in the draw"; }
+$("prizes").addEventListener("input", countPrizes);
+$("save-prizes").addEventListener("click", function () {
+  R.post({ action: "prizes", list: prizeLines() }).then(function () { R.toast("Prizes saved"); load(); }).catch(function (e) { R.toast(e.message, 5000); });
+});
+
+// ---------------------------------------------------------------- photos (from the kit)
+var photos = [], ptab = "p", photosLoaded = false;
+function photoUrl(it, w) {
+  if (it.c) return "https://res.cloudinary.com/" + R.cfg.cloudinaryCloudName + "/image/upload/f_auto,q_auto,c_limit,w_" + w + "/" + (it.v ? "v" + it.v + "/" : "") + it.id + ".jpg";
+  return "https://drive.google.com/thumbnail?id=" + encodeURIComponent(it.id) + "&sz=w" + w;
+}
+function ago(t) { var m = Math.round((Date.now() - t) / 60000); return m < 1 ? "just now" : m < 60 ? m + " min ago" : Math.round(m / 60) + " h ago"; }
+function loadPhotos() {
+  return R.get("admin").then(function (res) { photos = res.photos || []; setAuto(!!res.auto); photosLoaded = true; paintPhotos(); }).catch(function (e) { R.toast(e.message, 5000); });
+}
+function paintPhotos() {
+  ["p", "a", "h"].forEach(function (s) { $("c-" + s).textContent = photos.filter(function (it) { return it.s === s; }).length; });
+  var waiting = photos.filter(function (it) { return it.s === "p"; }).length;
+  $("n-photos").textContent = waiting ? waiting + " new" : "";
+  var list = photos.filter(function (it) { return it.s === ptab; });
+  $("pgrid").innerHTML = list.map(function (it) {
+    return '<div class="ph" data-id="' + R.esc(it.id) + '"><button class="thumb" type="button" data-view style="background-image:url(\'' + photoUrl(it, 500) + '\')" aria-label="View photo"></button>' +
+      '<div class="meta">' + ago(it.t) + '</div><div class="acts">' + actButtons(it) + '</div>' +
+      '<button class="del" type="button" data-del aria-label="Delete photo"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg></button></div>';
+  }).join("");
+  $("p-empty").hidden = list.length > 0;
+  $("p-empty").textContent = { p: "No photos waiting. New ones appear here.", a: "No photos in the album yet.", h: "No hidden photos." }[ptab];
+}
+function actButtons(it) {
+  return (it.s !== "a" ? '<button class="btn btn-primary btn-sm" type="button" data-s="a">' + (it.s === "h" ? "Restore" : "Approve") + '</button>' : "") +
+    (it.s !== "h" ? '<button class="btn btn-ghost btn-sm" type="button" data-s="h">Hide</button>' : "");
+}
+function byPid(id) { return photos.filter(function (p) { return p.id === id; })[0]; }
+function photoAction(it, b) {
+  if (b.hasAttribute("data-view")) { $("viewer-img").src = photoUrl(it, 1600); $("viewer-acts").innerHTML = actButtons(it) + '<button class="btn btn-danger btn-sm" type="button" data-del>Delete</button>'; $("viewer").dataset.id = it.id; $("viewer").hidden = false; return; }
+  if (b.hasAttribute("data-del")) {
+    if (!confirm("Delete this photo? It disappears from the album and big screen.")) return;
+    photos = photos.filter(function (p) { return p !== it; }); paintPhotos(); $("viewer").hidden = true;
+    R.post({ action: "delete", id: it.id }).then(function () { R.toast("Deleted"); }).catch(function (e) { R.toast("Didn't delete: " + e.message, 5000); loadPhotos(); });
+    return;
+  }
+  if (b.dataset.s) {
+    var prev = it.s; it.s = b.dataset.s; paintPhotos(); $("viewer").hidden = true;
+    R.toast(it.s === "a" ? "Approved: it's on the screen and in the album" : "Hidden");
+    R.post({ action: "review", id: it.id, status: it.s }).catch(function (e) { it.s = prev; paintPhotos(); R.toast("Didn't save: " + e.message, 5000); });
+  }
+}
+$("pgrid").addEventListener("click", function (e) { var b = e.target.closest("button"); if (!b) return; var card = b.closest(".ph"); photoAction(byPid(card.dataset.id), b); });
+$("viewer").addEventListener("click", function (e) { if (e.target === this) { this.hidden = true; return; } var b = e.target.closest("button"); if (b) photoAction(byPid(this.dataset.id), b); });
+$("ptabs").addEventListener("click", function (e) { var b = e.target.closest(".chip"); if (!b) return; ptab = b.dataset.s; this.querySelectorAll(".chip").forEach(function (c) { c.classList.toggle("on", c === b); }); paintPhotos(); });
+function setAuto(on) {
+  $("auto").checked = on; $("auto-sw").classList.toggle("on", on);
+  $("auto-hint").textContent = on ? "On: new photos go live straight away. Hide any you don't want." : "Off: new photos wait for approval";
+}
+$("auto").addEventListener("change", function () {
+  var on = this.checked;
+  if (on && !confirm("Turn on Auto-approve? New photos appear on the big screen and in the album straight away. You can still hide any photo afterwards.")) { this.checked = false; return; }
+  R.post({ action: "settings", auto: on }).then(function (res) { setAuto(res.auto); R.toast(res.auto ? "Auto-approve is on" : "Auto-approve is off"); })
+    .catch(function (e) { setAuto(!on); R.toast("Didn't save: " + e.message, 5000); });
+});
+
+load();
+var startTab = (location.hash || "").slice(1);
+showTab(["people", "prizes", "photos", "screens"].indexOf(startTab) >= 0 ? startTab : "people");
+setInterval(function () { if (document.hidden || editing) return; load(); if (!$("tab-photos").hidden) loadPhotos(); }, 15000);
+</script>
+</body>
+</html>

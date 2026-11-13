@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#2a0a1e">
+<title>Roshni · Raffle draw</title>
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest-draw.webmanifest">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Raffle">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@600;700;800;900&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<link rel="stylesheet" href="assets/roshni.css">
+<style>
+  html, body { height: 100%; overflow: hidden; background: #14040e; }
+  :root { --cell: 270px; }
+  /* operator buttons fade away while the mouse is still; Space still draws */
+  .controls { transition: opacity .5s; }
+  html.cursor-off .controls { opacity: 0; pointer-events: none; }
+
+  .stage { display: grid; grid-template-rows: auto 1fr auto; padding: 34px 64px 30px; isolation: isolate; }
+  .toran-top { position: absolute; left: 0; right: 0; top: 0; height: 84px; background: url("assets/toran.svg") repeat-x; background-size: auto 84px; z-index: 2; pointer-events: none; }
+  .spot { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(46% 50% at 50% 50%, rgba(var(--gold-rgb), 0.16), transparent 62%), radial-gradient(120% 95% at 50% 50%, transparent 45%, rgba(10, 2, 7, 0.82)); }
+  .spot.hot { position: absolute; inset: 0; opacity: 0; transition: opacity .8s; background: radial-gradient(46% 52% at 50% 52%, rgba(var(--gold-rgb), 0.3), transparent 64%); }
+  body.won .spot.hot { opacity: 1; }
+
+  /* the rangoli turning slowly behind the machine (GPU only: transform + opacity) */
+  .mandala { position: absolute; left: 50%; top: 52%; width: 1180px; height: 1180px; margin: -590px 0 0 -590px; z-index: -1; opacity: 0.16; will-change: transform; animation: turn 140s linear infinite; transition: opacity 1.2s ease; pointer-events: none; }
+  body.spinning .mandala { opacity: 0.26; animation-duration: 40s; }
+  body.won .mandala { opacity: 0.34; }
+  @keyframes turn { to { transform: rotate(360deg); } }
+
+  /* twinkling lights */
+  .twinkles i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle, #fff6d6 0 25%, rgba(var(--gold-rgb), 0.9) 35%, rgba(var(--gold-rgb), 0) 70%); opacity: 0; animation: tw 3.6s ease-in-out infinite; will-change: transform, opacity; }
+  @keyframes tw { 0%, 100% { opacity: 0; transform: scale(0.4); } 50% { opacity: 0.9; transform: scale(1); } }
+
+  .top { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 40px; }
+  .brand { display: flex; align-items: center; gap: 18px; }
+  .brand img { width: 96px; height: 96px; }
+  .brand .wordmark { font-size: 76px; }
+  .brand small { display: block; font: 800 16px 'Manrope', sans-serif; letter-spacing: 0.32em; text-transform: uppercase; color: var(--cream); margin-top: 6px; }
+  .host { font-size: 14px; font-weight: 800; letter-spacing: 0.26em; text-transform: uppercase; color: var(--faint); display: flex; align-items: center; gap: 14px; }
+  .host img { height: 40px; }
+  .demo-tag { margin-left: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(var(--gold-rgb), 0.12); border: 1px solid var(--gold-hair); color: var(--gold); font-size: 13px; font-weight: 800; letter-spacing: 0.14em; align-self: center; }
+
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 0; }
+  .prize { font: 800 22px 'Manrope', sans-serif; letter-spacing: 0.32em; text-transform: uppercase; color: var(--marigold); min-height: 1.4em; }
+  .eyebrow2 { font-size: 18px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase; color: var(--dim); min-height: 1.4em; margin-top: 8px; }
+  .title { font: 800 56px/1.05 'Poppins', sans-serif; margin: 10px 0 30px; }
+  .title em { font-style: normal; color: var(--gold); }
+
+  /* reels */
+  .machine { position: relative; display: flex; align-items: center; gap: 18px; padding: 26px 44px; border-radius: 30px; background: linear-gradient(180deg, rgba(58, 16, 41, 0.96), rgba(26, 6, 18, 0.97)); border: 2px solid rgba(var(--gold-rgb), 0.55); box-shadow: 0 40px 110px -40px rgba(var(--saffron-rgb), 0.7), inset 0 1px 0 rgba(255,255,255,0.08); }
+  .machine::before { content: ""; position: absolute; left: 6%; right: 6%; top: -2px; height: 4px; border-radius: 4px; background: linear-gradient(90deg, transparent, var(--saffron), var(--gold), var(--saffron), transparent); }
+  .machine .bead { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .prefix { font: 900 calc(var(--cell) * 0.6)/1 'Poppins', sans-serif; color: var(--cream); padding-right: 0.06em; }
+  .reels { display: flex; gap: 14px; }
+  .reel { position: relative; width: calc(var(--cell) * 0.64); height: var(--cell); overflow: hidden; border-radius: 18px; background: linear-gradient(180deg, #0f030a, #24081a 50%, #0f030a); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08), inset 0 20px 26px -12px rgba(0,0,0,0.9), inset 0 -20px 26px -12px rgba(0,0,0,0.9); }
+  .reel::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(10,2,7,0.8), transparent 26%, transparent 74%, rgba(10,2,7,0.8)); }
+  .strip { position: absolute; left: 0; right: 0; top: 0; will-change: transform; }
+  .strip div { height: var(--cell); display: grid; place-items: center; font: 900 calc(var(--cell) * 0.72)/1 'Poppins', sans-serif; color: var(--cream); font-variant-numeric: tabular-nums; }
+  .reel.fast .strip div { color: #d8c0b2; }
+  .reel .ring { position: absolute; inset: 0; border-radius: 18px; box-shadow: inset 0 0 0 3px var(--gold), 0 0 40px -2px rgba(var(--gold-rgb), 0.8); opacity: 0; transition: opacity .35s; pointer-events: none; }
+  .reel.locked .ring { opacity: 1; }
+  .reel.locked .strip div { color: var(--gold); }
+  .reel.locked { animation: thunk .35s var(--ease); }
+  @keyframes thunk { 0% { transform: translateY(0); } 35% { transform: translateY(6px) scale(0.98); } 100% { transform: none; } }
+  .flash { position: absolute; inset: -2px; border-radius: 30px; pointer-events: none; opacity: 0; background: radial-gradient(closest-side, rgba(255, 236, 170, 0.6), transparent); }
+  body.won .flash { animation: flash 1s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* winner card: rises with transform + opacity only (no blur on big text) */
+  .who { min-height: 190px; margin-top: 30px; display: flex; flex-direction: column; align-items: center; }
+  .who .hint { color: var(--faint); font-size: 19px; margin: 0; }
+  .who .hint kbd { font: 800 0.9em 'Manrope', sans-serif; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--hair-strong); color: var(--dim); }
+  .who .name { font: 800 76px/1.05 'Poppins', sans-serif; color: #fff7e6; text-shadow: 0 0 44px rgba(var(--gold-rgb), 0.45); }
+  .who .sub { margin-top: 12px; font-size: 26px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--marigold); }
+  .who .tag { margin-top: 16px; padding: 8px 20px; border-radius: 999px; border: 1px solid var(--gold-hair); background: rgba(var(--gold-rgb), 0.08); color: var(--gold); font-size: 18px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; }
+  .who.show > * { animation: rise .7s var(--ease) both; }
+  .who.show .sub { animation-delay: .12s; } .who.show .tag { animation-delay: .24s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(22px) scale(0.98); } }
+
+  .bottom { position: relative; z-index: 3; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
+  .winners { display: flex; gap: 10px; flex-wrap: wrap; max-width: 62%; }
+  .winners > span { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; padding: 9px 16px; border-radius: 999px; background: rgba(var(--gold-rgb), 0.12); border: 1px solid var(--gold-hair); color: var(--gold); }
+  .winners b { color: var(--cream); font-weight: 700; }
+  .controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .pool { font-size: 14px; color: var(--faint); margin-right: 6px; white-space: nowrap; }
+  .pool b { color: var(--cream); }
+  .btn-lg { min-height: 56px; padding: 0 32px; font-size: 17px; }
+  .icon-btn { width: 44px; padding: 0; }
+
+  .log { position: fixed; right: 24px; bottom: 96px; width: 480px; max-height: 60vh; overflow: auto; z-index: 15; padding: 16px 18px; border-radius: 18px; background: rgba(26, 6, 18, 0.97); border: 1px solid var(--gold-hair); font-size: 13px; color: var(--dim); }
+  .log h4 { margin: 0 0 4px; font: 800 15px 'Poppins', sans-serif; color: var(--cream); }
+  .log p { margin: 0 0 10px; font-size: 12px; color: var(--faint); }
+  .log .row { padding: 9px 0; border-top: 1px solid var(--hair); line-height: 1.5; }
+  .log code { font-size: 11.5px; color: var(--faint); word-break: break-all; }
+  .log b { color: var(--cream); }
+
+  canvas.fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 20; }
+</style>
+</head>
+<body>
+
+<main class="stage screen" id="stage">
+  <div class="spot"></div><div class="spot hot"></div>
+  <img class="mandala" src="assets/mandala.svg" alt="" aria-hidden="true">
+  <div class="twinkles" id="twinkles" aria-hidden="true"></div>
+  <div class="toran-top" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <img data-cfg="logos.event" alt="">
+      <div><div class="wordmark" data-cfg="eventName"></div><small data-cfg="tagline"></small></div>
+      <span class="demo-tag" id="demo-tag" hidden>DEMO · SAMPLE DATA</span>
+    </div>
+    <div class="host">Hosted by <img data-cfg="logos.company" alt="Techniline Electronics"></div>
+  </header>
+
+  <section class="center">
+    <div class="prize" id="prize"></div>
+    <div class="eyebrow2" id="eyebrow">Diwali raffle</div>
+    <h1 class="title" id="title">And the winner <em>is</em></h1>
+    <div class="machine" id="machine">
+      <span class="prefix" id="prefix"></span>
+      <div class="reels" id="reels"></div>
+      <div class="flash"></div>
+    </div>
+    <div class="who" id="who"><p class="hint">Press <kbd>Space</kbd> or <b>Draw</b> to pick a winner</p></div>
+  </section>
+
+  <footer class="bottom">
+    <div class="winners" id="winners"></div>
+    <div class="controls">
+      <span class="pool" id="pool"></span>
+      <button class="btn btn-ghost btn-sm icon-btn" id="sound" type="button" title="Sound (M)" aria-label="Sound on">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path id="snd-wave" d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg>
+      </button>
+      <button class="btn btn-ghost btn-sm" id="logbtn" type="button" title="Draw log (L)">Log</button>
+      <button class="btn btn-ghost btn-sm" id="redraw" type="button" hidden>Not here? Redraw</button>
+      <button class="btn btn-ghost btn-sm" id="reset" type="button">Reset</button>
+      <button class="btn btn-primary btn-lg" id="draw" type="button">Draw</button>
+    </div>
+  </footer>
+</main>
+
+<aside class="log" id="log" hidden><h4>Draw log</h4><p>Each pick: time, prize, pool size, the pick's position and the SHA-256 fingerprint of the entry list.</p><div id="log-rows"></div></aside>
+<canvas class="fx" id="fx"></canvas>
+
+<script src="assets/api.js"></script>
+<script src="assets/fullscreen.js"></script>
+<script src="assets/fair.js"></script>
+<script src="assets/screen.js"></script>
+<script>
+// Raffle draw (adapted from Soundcheck's draw.html).
+// The winner is picked first, fairly (assets/fair.js), from every checked-in
+// employee and guest who hasn't won or been skipped. The reels then land on that number.
+var CFG = R.cfg, DEMO = /[?&]demo=1\b/.test(location.search), DOT = String.fromCharCode(183);
+var PACE = CFG.draw.pace; // all draw timings, in config.js
+var $ = function (id) { return document.getElementById(id); };
+R.brand();
+$("prefix").textContent = CFG.draw.prefix;
+
+var people = [], prizes = CFG.draw.prizes.slice(), winners = [], skipped = [], log = [];
+var current = null, busy = false, soundOn = true, digits = 3, saving = 0;
+var ORD = ["1st", "2nd", "3rd"];
+function ord(i) { return ORD[i] || (i + 1) + "th"; }
+
+// ================================================================ data
+function load() {
+  if (DEMO) return Promise.resolve(render());
+  return R.get("people").then(function (res) {
+    people = res.people || [];
+    prizes = res.prizes && res.prizes.length ? res.prizes : prizes;
+    if (!saving) { winners = res.winners || []; skipped = res.skipped || []; log = res.log || []; }
+    render(); paintLog();
+  });
+}
+function save(body) {
+  if (DEMO) return Promise.resolve();
+  saving++;
+  return R.post(body).then(function (res) {
+    winners = res.winners; skipped = res.skipped; log = res.log;
+    render(); paintLog();
+  }).catch(function (e) {
+    R.toast("Shown on screen, but not saved online: " + (e.message || "check the connection"), 6000);
+  }).then(function () { saving--; });
+}
+
+// About 150 made-up entries for rehearsing (never sent anywhere): 120 employees,
+// 100 of them checked in, with 50 guests between them.
+function demoPeople() {
+  var first = ["Aisha", "Omar", "Priya", "James", "Fatima", "Rohan", "Sofia", "Khalid", "Mei", "Daniel", "Layla", "Arjun", "Nadia", "Lucas", "Hana", "Yusuf", "Elena", "Ravi", "Sara", "Marco", "Zainab", "Tom", "Leila", "Imran", "Grace", "Hamad", "Anika", "Chris", "Noor", "Vikram", "Mariam", "Ben", "Rania", "Kiran", "Ali", "Julia", "Faisal", "Meera", "Adam", "Huda", "Deepa", "Sanjay", "Pooja", "Neha", "Rahul"];
+  var last = ["Rahman", "Haddad", "Nair", "Carter", "Al Mansoori", "Mehta", "Rossi", "Saeed", "Lin", "Brooks", "Hassan", "Pillai", "Karim", "Moreau", "Yusuf", "Petrova", "Kapoor", "Khan", "Bianchi", "Al Suwaidi", "Walsh", "Aziz", "Fernandes", "Iyer", "Al Hashimi", "Sharma", "Qureshi", "Das", "Nasser", "Menon"];
+  var depts = ["Sales", "Finance", "Marketing", "Logistics", "Projects", "Service", "IT", "HR", "Warehouse", "E-commerce", "Procurement", "Management"];
+  var r = mulberry(20261108), out = [], n = 1, pick = function (a) { return a[Math.floor(r() * a.length)]; };
+  for (var i = 1; i <= 120; i++) out.push({ id: i, name: pick(first) + " " + pick(last), dept: pick(depts), code: "EMP-" + (1000 + i), n: 0, t: 0, g: [] });
+  var order = out.slice().sort(function () { return r() - 0.5; }).slice(0, 100), counts = order.map(function () { return 0; });
+  for (var left = 50; left > 0;) { var k = Math.floor(r() * 100); if (counts[k] < 2) { counts[k]++; left--; } }
+  order.forEach(function (p, k) {
+    p.n = n++; p.t = Date.now();
+    for (var j = 0; j < counts[k]; j++) p.g.push({ n: n++, name: pick(first) + " " + p.name.split(" ").slice(1).join(" "), t: Date.now() });
+  });
+  return out;
+}
+function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ================================================================ who can win
+// Every checked-in employee and guest, except past winners and anyone skipped
+function pool() {
+  var out = {};
+  winners.forEach(function (w) { out[w.n] = 1; });
+  skipped.forEach(function (n) { out[n] = 1; });
+  return R.entriesOf(people).filter(function (e) { return !out[e.n]; });
+}
+
+// ================================================================ screen
+function render() {
+  var all = R.entriesOf(people), maxN = all.reduce(function (m, e) { return Math.max(m, e.n); }, 0);
+  var want = Math.max(3, String(maxN).length);
+  if (want !== digits || !reels.length) { digits = want; buildReels(); }
+  $("winners").innerHTML = winners.map(function (w) {
+    return "<span><span>" + R.esc(w.prize) + " " + DOT + " " + R.drawNo(w.n) + "</span><b>" + R.esc(w.name) + "</b></span>";
+  }).join("");
+  var left = pool().length, done = winners.length >= prizes.length, next = prizes[winners.length];
+  $("pool").innerHTML = done ? "" : "<b>" + left + "</b> " + (left === 1 ? "entry" : "entries") + " in the draw";
+  $("draw").disabled = busy || done || !left;
+  $("draw").textContent = done ? "All prizes drawn" : "Draw: " + next;
+  if (!busy) {
+    $("prize").textContent = done ? "Congratulations to our winners" : next;
+    $("eyebrow").textContent = done ? "Shubh Deepavali" : "Prize " + (winners.length + 1) + " of " + prizes.length;
+  }
+}
+
+// ================================================================ reels
+var reels = [], CELL = 270;
+function buildReels() {
+  var box = $("reels"); box.innerHTML = ""; reels = [];
+  CELL = Math.round(270 * (digits > 3 ? 3 / digits * 1.15 : 1));
+  document.documentElement.style.setProperty("--cell", CELL + "px");
+  for (var i = 0; i < digits; i++) {
+    var reel = document.createElement("div"); reel.className = "reel";
+    var strip = document.createElement("div"); strip.className = "strip";
+    var html = ""; for (var k = 0; k < 20; k++) html += "<div>" + (k % 10) + "</div>";
+    strip.innerHTML = html;
+    var ring = document.createElement("div"); ring.className = "ring";
+    reel.appendChild(strip); reel.appendChild(ring); box.appendChild(reel);
+    reels.push({ el: reel, strip: strip, pos: 0, vel: 0, state: "idle", fast: false });
+    paintReel(reels[i]);
+  }
+}
+// The cell height is fixed on the canvas (screen.js scales the whole canvas),
+// so painting a reel never reads layout: only a transform is written.
+function paintReel(r) {
+  var p = ((r.pos % 10) + 10) % 10;
+  r.strip.style.transform = "translate3d(0," + (-p * CELL).toFixed(2) + "px,0)";
+}
+function setFast(r, on) { if (r.fast !== on) { r.fast = on; r.el.classList.toggle("fast", on); } }
+var lastT = 0;
+function loop(t) {
+  var dt = lastT ? Math.min(50, t - lastT) / 1000 : 0.016; lastT = t;
+  var moving = false;
+  reels.forEach(function (r) {
+    if (r.state === "spin") { r.pos += r.vel * dt; moving = true; }
+    else if (r.state === "stop") {
+      // one smooth, continuous slow-down from spinning speed to a stop on the number
+      var k = Math.min(1, (t - r.t0) / r.dur), e = 1 - Math.pow(1 - k, 3); // ease-out cubic
+      var before = Math.floor(r.pos);
+      r.pos = r.from + (r.to - r.from) * e;
+      if (Math.floor(r.pos) !== before) tick(1 - k);
+      setFast(r, k < 0.5);
+      if (k >= 1) { r.pos = r.to; lock(r); } else moving = true;
+    }
+    if (r.state !== "idle" && r.state !== "locked" || r.justLocked) { paintReel(r); r.justLocked = false; }
+  });
+  if (moving) requestAnimationFrame(loop); else lastT = 0;
+}
+function spinAll() {
+  reels.forEach(function (r, i) { r.state = "spin"; r.vel = 26 + i * 4; r.el.classList.remove("locked"); setFast(r, true); });
+  lastT = 0; requestAnimationFrame(loop);
+}
+function stopReel(r, digit, dur, turns) {
+  return new Promise(function (done) {
+    var base = Math.ceil(r.pos / 10) * 10 + 10 * (turns || 2); // full turns before landing
+    r.from = r.pos; r.to = base + digit;
+    // start slowing at exactly the speed it was spinning (ease-out cubic starts at 3x the average speed)
+    var seamless = r.vel ? 3 * (r.to - r.from) / r.vel * 1000 : dur;
+    r.dur = Math.max(dur, seamless); r.t0 = performance.now(); r.state = "stop"; r.done = done;
+  });
+}
+function lock(r) {
+  r.state = "locked"; r.justLocked = true; setFast(r, false); r.el.classList.add("locked"); thunk();
+  if (r.done) r.done();
+}
+function wait(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+
+// ================================================================ the draw
+function draw() {
+  if (busy) return;
+  if (winners.length >= prizes.length) { R.toast("All prizes have been drawn."); return; }
+  var list = pool();
+  if (!list.length) { R.toast("No entries left in the draw."); return; }
+  busy = true; audioInit();
+  var prize = prizes[winners.length];
+  document.body.classList.remove("won"); document.body.classList.add("spinning");
+  $("redraw").hidden = true; $("draw").disabled = true;
+  var who = $("who"); who.className = "who"; who.innerHTML = "";
+  $("prize").textContent = prize;
+
+  // The winner is decided here, before anything moves; the reels then land on it.
+  var pick = RoshniFair.fairIndex(list.length), winner = list[pick.index];
+  var target = String(winner.n); while (target.length < digits) target = "0" + target;
+  var at = Date.now(), fpP = RoshniFair.fingerprint(list.map(function (e) { return e.n; }));
+
+  $("eyebrow").textContent = "Shuffling " + list.length + " entries";
+  spinAll();
+  setTimeout(function () { if (busy) $("eyebrow").textContent = "Mixing the numbers"; }, PACE.shuffle * 0.4);
+  setTimeout(function () { if (busy) $("eyebrow").textContent = "Here we go"; }, PACE.shuffle * 0.78);
+  var seq = wait(PACE.shuffle);
+  reels.forEach(function (r, i) {
+    var isLast = i === reels.length - 1;
+    seq = seq.then(function () {
+      $("eyebrow").textContent = isLast ? "And the last digit is" : i === 0 ? "First digit" : "Next digit";
+      var stop = stopReel(r, Number(target[i]), isLast ? PACE.last : PACE.digit, isLast ? PACE.lastTurns : PACE.digitTurns);
+      if (isLast) drumroll(r.dur); // r.dur is the real slow-down length, so the roll ends as the digit locks
+      return stop;
+    }).then(function () { return wait(isLast ? 350 : PACE.gap); });
+  });
+  seq.then(function () {
+    document.body.classList.remove("spinning"); document.body.classList.add("won");
+    who.innerHTML = "<div class='name'></div><div class='sub'></div><div class='tag'></div>";
+    who.querySelector(".name").textContent = winner.name;
+    who.querySelector(".sub").textContent = winner.host ? "Guest of " + winner.host : (winner.dept || "");
+    who.querySelector(".tag").textContent = R.drawNo(winner.n) + "  " + DOT + "  " + prize;
+    who.className = "who show";
+    winners.push({ n: winner.n, name: winner.name, host: winner.host || "", dept: winner.dept || "", prize: prize, t: Date.now() });
+    current = winner;
+    saving++; // hold the 20-second refresh until this winner is saved
+    celebrate(); chime();
+    busy = false; $("redraw").hidden = false;
+    render();
+    $("prize").textContent = prize;
+    $("eyebrow").textContent = "Winner " + winners.length + " of " + prizes.length;
+    fpP.then(function (fp) {
+      var entry = { at: at, no: R.drawNo(winner.n), name: winner.name, prize: prize, pool: list.length, fp: fp, idx: pick.index, raw: pick.raw, kind: "win" };
+      if (DEMO) { log.unshift(entry); paintLog(); }
+      return save({ action: "winner", n: winner.n, log: entry });
+    }).then(function () { saving--; }, function () { saving--; });
+  });
+}
+
+function redraw() {
+  if (!current || busy) return;
+  var gone = current;
+  if (!confirm("Redraw? " + R.drawNo(gone.n) + " (" + gone.name + ") leaves the winners and can't be drawn again.")) return;
+  winners = winners.filter(function (w) { return w.n !== gone.n; });
+  if (skipped.indexOf(gone.n) < 0) skipped.push(gone.n);
+  current = null;
+  var entry = { at: Date.now(), kind: "skip", no: R.drawNo(gone.n), name: gone.name };
+  if (DEMO) { log.unshift(entry); paintLog(); }
+  save({ action: "winner", skip: gone.n, log: entry });
+  render(); draw();
+}
+
+function reset() {
+  if (busy) return;
+  if (!confirm("Reset the draw? All winners and skipped entries go back into the draw, and you start again from the first prize.")) return;
+  var entry = { at: Date.now(), kind: "reset" };
+  var done = function () {
+    winners = []; skipped = []; current = null; $("redraw").hidden = true;
+    document.body.classList.remove("won");
+    // back to DW-000, ready for the first prize
+    reels.forEach(function (r) { r.state = "idle"; r.vel = 0; r.pos = 0; r.el.classList.remove("locked"); setFast(r, false); paintReel(r); });
+    $("who").className = "who"; $("who").innerHTML = "<p class='hint'>Press <kbd>Space</kbd> or <b>Draw</b> to pick a winner</p>";
+    render(); R.toast("Draw reset");
+  };
+  if (DEMO) { log.unshift(entry); paintLog(); done(); return; }
+  R.post({ action: "winner", reset: true, log: entry }).then(function (res) { done(); log = res.log; paintLog(); })
+    .catch(function (e) { R.toast("Didn't reset: " + (e.message || "try again"), 5000); });
+}
+
+// ================================================================ draw log (saved on the server)
+function paintLog() {
+  var rows = log.map(function (e) {
+    var when = R.stamp(e.at);
+    if (e.kind === "reset") return "<div class='row'>" + when + " " + DOT + " <b>Draw reset</b></div>";
+    if (e.kind === "skip") return "<div class='row'>" + when + " " + DOT + " <b>" + R.esc(e.no) + "</b> skipped (not here) " + DOT + " " + R.esc(e.name) + "</div>";
+    return "<div class='row'>" + when + " " + DOT + " <b>" + R.esc(e.prize) + ": " + R.esc(e.no) + "</b> " + R.esc(e.name) +
+      "<br>from " + e.pool + " entries " + DOT + " pick #" + (e.idx + 1) + "<br><code>entry list SHA-256 " + R.esc(e.fp) + " " + DOT + " random " + e.raw + "</code></div>";
+  }).join("");
+  $("log-rows").innerHTML = rows || "<div class='row'>No draws yet.</div>";
+}
+
+// ================================================================ sound (generated, no files)
+var ac = null;
+function audioInit() { if (!ac && soundOn) { try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} } if (ac && ac.state === "suspended") ac.resume(); }
+function tone(freq, dur, type, vol, when) {
+  if (!ac || !soundOn) return;
+  var t = ac.currentTime + (when || 0), o = ac.createOscillator(), g = ac.createGain();
+  o.type = type || "sine"; o.frequency.setValueAtTime(freq, t);
+  g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.2, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.02);
+}
+var lastTick = 0;
+function tick(v) { var n = performance.now(); if (n - lastTick < 45) return; lastTick = n; tone(1700, 0.03, "square", 0.03 * v + 0.012); }
+function drumroll(ms) {
+  if (!ac || !soundOn) return;
+  var t = 0, gap = 0.16;
+  while (t < ms / 1000 - 0.05) {
+    tone(70 + Math.random() * 8, 0.09, "triangle", 0.10 + 0.25 * (t / (ms / 1000)), t);
+    t += gap; gap = Math.max(0.045, gap * 0.95);
+  }
+}
+function thunk() { tone(110, 0.28, "sine", 0.45); tone(220, 0.12, "triangle", 0.12); }
+// a temple-bell chime: a bright arpeggio, then a bell with inharmonic partials
+function bell(f, when, vol) { [[1, 1], [2.76, 0.45], [5.4, 0.22], [8.93, 0.1]].forEach(function (p) { tone(f * p[0], 2.6 / p[0] + 0.6, "sine", vol * p[1], when); }); }
+function chime() {
+  [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { tone(f, 0.9, "triangle", 0.13, i * 0.11); });
+  bell(523.25, 0.5, 0.22); bell(784, 1.1, 0.12);
+}
+function paintSound() {
+  $("snd-wave").style.display = soundOn ? "" : "none";
+  $("sound").setAttribute("aria-label", soundOn ? "Sound on" : "Sound off");
+  $("sound").style.color = soundOn ? "var(--gold)" : "";
+}
+
+// ================================================================ fireworks, sparkles and marigold petals
+// Drawn on one canvas; nothing in the page layout moves.
+var FX = { cv: $("fx"), parts: [], rockets: [], running: false, w: 0, h: 0 };
+function sizeFx() {
+  var dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  FX.w = innerWidth; FX.h = innerHeight;
+  FX.cv.width = Math.round(FX.w * dpr); FX.cv.height = Math.round(FX.h * dpr);
+  FX.g = FX.cv.getContext("2d"); FX.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+var SPARK = ["#fff3c4", "#f2c45a", "#f7a325", "#ff7a1a", "#d6336c", "#ffe08a"];
+var PETAL = ["#f7a325", "#ff8c1a", "#ffb000", "#f2c45a", "#ff6a00"];
+function celebrate() {
+  sizeFx();
+  var W = FX.w, H = FX.h, s = H / 1080;
+  // marigold petals from both sides
+  for (var i = 0; i < 200; i++) {
+    var left = i % 2 === 0;
+    FX.parts.push({ kind: "petal", x: left ? -10 : W + 10, y: H * (0.5 + Math.random() * 0.35), vx: (left ? 1 : -1) * (5 + Math.random() * 10) * s, vy: -(8 + Math.random() * 12) * s,
+      r: (6 + Math.random() * 7) * s, rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, c: PETAL[i % PETAL.length], life: 0, max: 4.2 + Math.random() });
+  }
+  // fireworks: rockets launched over 3 seconds
+  for (var k = 0; k < 7; k++) FX.rockets.push({ at: performance.now() + k * 420 + Math.random() * 200, x: W * (0.15 + Math.random() * 0.7), ty: H * (0.12 + Math.random() * 0.3) });
+  if (!FX.running) { FX.running = true; FX.last = performance.now(); requestAnimationFrame(fxFrame); }
+}
+function burst(x, y) {
+  var s = FX.h / 1080, n = 70, col = SPARK[Math.floor(Math.random() * SPARK.length)];
+  for (var i = 0; i < n; i++) {
+    var a = (i / n) * Math.PI * 2 + Math.random() * 0.1, sp = (3 + Math.random() * 4.5) * s;
+    FX.parts.push({ kind: "spark", x: x, y: y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, c: Math.random() < 0.25 ? "#fff3c4" : col, life: 0, max: 1.3 + Math.random() * 0.6 });
+  }
+  boom();
+}
+function fxFrame(t) {
+  var g = FX.g, dt = Math.min(0.05, (t - FX.last) / 1000), f = dt * 60; FX.last = t;
+  g.clearRect(0, 0, FX.w, FX.h);
+  FX.rockets = FX.rockets.filter(function (r) {
+    if (t < r.at) return true;
+    if (r.y === undefined) { r.y = FX.h; r.vy = -(FX.h - r.ty) / 40; }
+    r.y += r.vy * f;
+    g.globalCompositeOperation = "lighter";
+    g.fillStyle = "#ffe08a"; g.beginPath(); g.arc(r.x, r.y, 3, 0, 6.283); g.fill();
+    g.fillStyle = "rgba(255,180,80,0.35)"; g.fillRect(r.x - 1, r.y, 2, 40);
+    if (r.y <= r.ty) { burst(r.x, r.y); return false; }
+    return true;
+  });
+  FX.parts = FX.parts.filter(function (p) {
+    p.life += dt;
+    if (p.life > p.max) return false;
+    var fade = Math.max(0, 1 - Math.max(0, p.life - p.max + 1.2) / 1.2);
+    if (p.kind === "spark") {
+      p.vx *= Math.pow(0.97, f); p.vy = p.vy * Math.pow(0.97, f) + 0.06 * f;
+      var px = p.x, py = p.y; p.x += p.vx * f; p.y += p.vy * f;
+      g.globalCompositeOperation = "lighter"; g.globalAlpha = fade;
+      g.strokeStyle = p.c; g.lineWidth = 2.2; g.beginPath(); g.moveTo(px - p.vx * 2, py - p.vy * 2); g.lineTo(p.x, p.y); g.stroke();
+    } else {
+      p.vy += 0.3 * f; p.vx *= Math.pow(0.99, f); p.vy = Math.min(p.vy, 4 * FX.h / 1080 + 2);
+      p.x += p.vx * f; p.y += p.vy * f; p.rot += p.vr * f;
+      g.globalCompositeOperation = "source-over"; g.globalAlpha = fade;
+      g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.scale(1, Math.abs(Math.cos(p.rot * 1.7)) * 0.7 + 0.3);
+      g.fillStyle = p.c; g.beginPath(); g.ellipse(0, 0, p.r, p.r * 0.55, 0, 0, 6.283); g.fill();
+      g.restore();
+    }
+    return true;
+  });
+  g.globalAlpha = 1; g.globalCompositeOperation = "source-over";
+  if (FX.parts.length || FX.rockets.length) requestAnimationFrame(fxFrame);
+  else { FX.running = false; g.clearRect(0, 0, FX.w, FX.h); }
+}
+function boom() { if (!ac || !soundOn) return; tone(60 + Math.random() * 20, 0.5, "sine", 0.25); tone(1800 + Math.random() * 800, 0.25, "triangle", 0.02, 0.05); }
+
+// twinkling lights scattered round the edges
+(function () {
+  var box = $("twinkles"), r = mulberry(7), W = CFG.screen.width, H = CFG.screen.height, html = "";
+  for (var i = 0; i < 34; i++) {
+    var x = r() * W, y = 120 + r() * (H - 220);
+    if (x > W * 0.22 && x < W * 0.78 && y > H * 0.22 && y < H * 0.84) continue; // keep the middle clear
+    html += '<i style="left:' + x.toFixed(0) + "px;top:" + y.toFixed(0) + "px;animation-delay:" + (r() * 3.6).toFixed(2) + "s;animation-duration:" + (2.8 + r() * 2.4).toFixed(2) + 's"></i>';
+  }
+  box.innerHTML = html;
+})();
+
+// ================================================================ controls
+$("draw").addEventListener("click", draw);
+$("redraw").addEventListener("click", redraw);
+$("reset").addEventListener("click", reset);
+$("sound").addEventListener("click", function () { soundOn = !soundOn; if (soundOn) audioInit(); paintSound(); });
+$("logbtn").addEventListener("click", function () { $("log").hidden = !$("log").hidden; paintLog(); });
+document.addEventListener("keydown", function (e) {
+  if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+  if (e.code === "Space" || e.key === "Enter") { e.preventDefault(); draw(); }
+  else if (e.key === "m" || e.key === "M") $("sound").click();
+  else if (e.key === "l" || e.key === "L") $("logbtn").click();
+});
+
+paintSound(); paintLog();
+if (DEMO) {
+  people = demoPeople();
+  $("demo-tag").hidden = false;
+  document.title = "Roshni · Raffle draw (demo)";
+  render();
+} else {
+  render();
+  load().catch(function (e) { R.toast(e.message || "Couldn't load the entries", 6000); });
+  setInterval(function () { if (!busy && !saving) load().catch(function () {}); }, 20000);
+}
+</script>
+</body>
+</html>
