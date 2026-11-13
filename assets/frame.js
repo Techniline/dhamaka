@@ -1,4 +1,4 @@
-/* Diwali Dhamaka: the branded Diwali photo frame, drawn on the guest's phone.
+/* Dhamaka: the branded photo frame, drawn on the guest's phone.
  * (Adapted from the Capture the Moment kit.) The photo keeps its own shape,
  * with a rangoli in each top corner and the event bar underneath: diya mark,
  * the event name, the date and time, and the company logo. Text, colours and logos come

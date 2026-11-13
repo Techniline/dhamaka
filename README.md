@@ -1,10 +1,10 @@
-# Diwali Dhamaka · Techniline Electronics
+# Dhamaka · Techniline Electronics
 
-One small website for the office Diwali party:
+One small website for the office party:
 
 | Page | Who uses it | What it does |
 |---|---|---|
-| `index.html` | Everyone | Take or upload a photo. It gets the Diwali frame on the phone and goes to the album. Shows the album. |
+| `index.html` | Everyone | Take or upload a photo. It gets the Dhamaka frame on the phone and goes to the album. Shows the album. |
 | `checkin.html` | Door team (phones or tablet) | Employee cards with search and filters. Tap to check in, add guests, see totals. Export CSV. |
 | `admin.html` | You | Import, edit and clear the employee list. Prizes. Photo approval with Auto-approve. Links to every screen. |
 | `draw.html` | Big screen | The raffle draw. `draw.html?demo=1` rehearses with about 150 sample entries and saves nothing. |
@@ -38,7 +38,7 @@ This uses the same free Cloudinary account as Soundcheck (cloud name `xccqslt2`)
 2. Settings → API Keys: note the **API Key** and **API Secret**. They're only needed for deleting photos, and they go in step 2.3, never in a file.
 
 ### 2. Google Apps Script (the backend)
-1. Go to [script.google.com](https://script.google.com) → **New project**. Name it *Diwali Dhamaka*.
+1. Go to [script.google.com](https://script.google.com) → **New project**. Name it *Dhamaka*.
 2. Delete the sample code, paste all of `apps-script/Code.gs`, and save.
 3. **Project Settings** (gear icon) → **Script Properties** → add:
    - `CLOUDINARY_KEY` and `CLOUDINARY_SECRET` (from step 1.2)
@@ -58,10 +58,10 @@ This uses the same free Cloudinary account as Soundcheck (cloud name `xccqslt2`)
 Open **admin.html → Employees**. Paste from Excel (Name, Department, Employee ID columns), type one person per line, or choose a CSV file. A header row is fine. Use **Add to the list** or **Replace the list**. People already on the list (same employee ID, or same name and department) are skipped.
 
 ### 5. Put it online (GitHub Pages)
-1. Create the repository `diwali` under the Techniline GitHub account and push this folder (Git Credential Manager handles the sign-in, as with Soundcheck).
+1. Create the repository `dhamaka` under the Techniline GitHub account and push this folder (Git Credential Manager handles the sign-in, as with Soundcheck).
 2. Repository → Settings → Pages → Deploy from branch → `main` / root.
-3. The site is then at `https://techniline.github.io/diwali/`.
-4. Custom subdomain (optional), e.g. `diwali.techniline.org`: add a `CNAME` file containing that name, add a DNS CNAME record pointing to `techniline.github.io`, tick **Enforce HTTPS** once it's available, and update `siteUrl` in `config.js`.
+3. The site is then at `https://techniline.github.io/dhamaka/`.
+4. Custom subdomain (optional), e.g. `dhamaka.techniline.org`: add a `CNAME` file containing that name, add a DNS CNAME record pointing to `techniline.github.io`, tick **Enforce HTTPS** once it's available, and update `siteUrl` in `config.js`.
 
 ---
 
@@ -82,8 +82,8 @@ Every screen has a round **full-screen button** (bottom right on phones, top rig
 
 ## Optional: staff link
 Everything is open by default. Anyone who has the check-in or admin address can use it. To lock the staff pages:
-1. In Script Properties, add `STAFF_KEY` with a long random value, e.g. `diwali-7Qx2-mP9k`.
-2. Give the door team and admins the link once with the key at the end: `https://…/checkin.html#key=diwali-7Qx2-mP9k`. Each device remembers it.
+1. In Script Properties, add `STAFF_KEY` with a long random value, e.g. `dhamaka-7Qx2-mP9k`.
+2. Give the door team and admins the link once with the key at the end: `https://…/checkin.html#key=dhamaka-7Qx2-mP9k`. Each device remembers it.
 
 The guest photo page and the album stay open to everyone. The key never goes in this repository.
 

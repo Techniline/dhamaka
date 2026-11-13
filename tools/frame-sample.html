@@ -1,11 +1,12 @@
 <!doctype html>
 <meta charset="utf-8">
+<base href="../">
 <title>Frame sample</title>
 <!-- Shows the photo frame on a sample photo. ?landscape for a wide photo. Used by tools/shots.sh. -->
 <link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Poppins:wght@800&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <style>html,body{margin:0;background:#111}img{display:block;width:100vw;height:auto}</style>
-<script src="../config.js"></script>
-<script src="../assets/frame.js"></script>
+<script src="config.js"></script>
+<script src="assets/frame.js"></script>
 <script>
 (async function () {
   var wide = /landscape/.test(location.search), w = wide ? 1600 : 1200, h = wide ? 1066 : 1600;

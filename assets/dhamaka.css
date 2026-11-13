@@ -1,4 +1,4 @@
-/* Diwali Dhamaka: shared look for every page. Colours come from config.js (--background, --marigold, ...). */
+/* Dhamaka: shared look for every page. Colours come from config.js (--background, --marigold, ...). */
 :root {
   --ink: var(--cream, #fbeedd); --dim: #d9c2b4; --faint: #a98c80;
   --hair: rgba(255, 255, 255, 0.10); --hair-strong: rgba(255, 255, 255, 0.18);

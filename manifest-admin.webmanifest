@@ -1,5 +1,5 @@
 {
-  "name": "Diwali Dhamaka admin",
+  "name": "Dhamaka admin",
   "short_name": "Admin",
   "start_url": "./admin.html",
   "scope": "./",

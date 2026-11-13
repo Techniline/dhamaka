@@ -1,7 +1,7 @@
 {
-  "name": "diwali-dhamaka",
+  "name": "dhamaka",
   "private": true,
-  "description": "Diwali Dhamaka: Techniline Electronics Diwali party (photo booth, check-in, raffle draw)",
+  "description": "Dhamaka: Techniline Electronics party (photo booth, check-in, raffle draw)",
   "scripts": {
     "test": "node --test tests/backend.test.js tests/fairness.test.js",
     "serve": "node tools/dev-server.js 8765",

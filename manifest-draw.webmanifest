@@ -1,5 +1,5 @@
 {
-  "name": "Diwali Dhamaka raffle draw",
+  "name": "Dhamaka raffle draw",
   "short_name": "Raffle",
   "start_url": "./draw.html",
   "scope": "./",

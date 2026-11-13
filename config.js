@@ -1,5 +1,5 @@
 /* =====================================================================
- * Diwali Dhamaka · Techniline Electronics
+ * Dhamaka · Techniline Electronics
  * EVERY event setting lives in this file. Change the values below and
  * replace the logos in /assets if you need to; nothing else needs editing.
  *
@@ -9,17 +9,17 @@
 window.DHAMAKA = {
 
   // ---- Event --------------------------------------------------------------
-  eventName: "Diwali Dhamaka",            // the event's name
+  eventName: "Dhamaka",            // the event's name
   tagline: "Festival of Lights 2026",    // shown under the name
   company: "Techniline Electronics",      // host
   dateText: "",                           // e.g. "Friday 20 November · 7 pm" ("" to hide)
   venue: "",                              // e.g. "Techniline HQ, Dubai" ("" to hide)
   timeZone: "Asia/Dubai",                 // used for the time stamped on photos and in the draw log
-  hashtags: ["#DiwaliDhamaka", "#Techniline", "#HappyDiwali"],
+  hashtags: ["#Dhamaka", "#Techniline"],
 
   // ---- Photo frame (drawn on every guest photo) ----------------------------
   frame: {
-    title: "Diwali Dhamaka",              // big words on the frame bar (shrinks to fit)
+    title: "Dhamaka",              // big words on the frame bar (shrinks to fit)
     tag: "FESTIVAL OF LIGHTS",            // small bold text under the title
     line: "2026",                         // small text after the tag
     hostLabel: "HOSTED BY"                // label above the company logo ("" to hide)
@@ -62,7 +62,7 @@ window.DHAMAKA = {
   cloudinaryCloudName: "xccqslt2",
   cloudinaryUploadPreset: "dhamaka",      // unsigned preset, folder "dhamaka"
   // Where the site lives: used for the QR codes on screens and posters.
-  siteUrl: "https://techniline.github.io/diwali/",
+  siteUrl: "https://techniline.github.io/dhamaka/",
   // Only used when a page is opened from this computer's test server (localhost)
   localTestApi: "/exec"
 };

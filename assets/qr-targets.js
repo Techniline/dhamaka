@@ -1,4 +1,4 @@
-/* Diwali Dhamaka: what each QR screen and poster points to (?for=photos or ?for=checkin). */
+/* Dhamaka: what each QR screen and poster points to (?for=photos or ?for=checkin). */
 function qrTarget() {
   var CFG = window.DHAMAKA, base = CFG.siteUrl.replace(/\/?$/, "/");
   var which = (/[?&]for=([a-z]+)/.exec(location.search) || [])[1] || "photos";
@@ -10,6 +10,6 @@ function qrTarget() {
   return {
     which: "photos", url: base,
     headline: "Capture the <em>moment</em>",
-    lines: "<b>Take a photo, get the Diwali frame</b>, and see it on the big screen.<br>No app, no sign-in."
+    lines: "<b>Take a photo, get the Dhamaka frame</b>, and see it on the big screen.<br>No app, no sign-in."
   };
 }

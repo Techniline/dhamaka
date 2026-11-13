@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a0a1e">
-<title>Diwali Dhamaka · Raffle draw</title>
+<title>Dhamaka · Raffle draw</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest-draw.webmanifest">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -127,7 +127,7 @@
 
   <section class="center">
     <div class="prize" id="prize"></div>
-    <div class="eyebrow2" id="eyebrow">Diwali raffle</div>
+    <div class="eyebrow2" id="eyebrow">Dhamaka raffle</div>
     <h1 class="title" id="title">And the winner <em>is</em></h1>
     <div class="machine" id="machine">
       <span class="prefix" id="prefix"></span>
@@ -236,7 +236,7 @@ function render() {
   $("draw").textContent = done ? "All prizes drawn" : "Draw: " + next;
   if (!busy) {
     $("prize").textContent = done ? "Congratulations to our winners" : next;
-    $("eyebrow").textContent = done ? "Shubh Deepavali" : "Prize " + (winners.length + 1) + " of " + prizes.length;
+    $("eyebrow").textContent = done ? "Thank you, everyone" : "Prize " + (winners.length + 1) + " of " + prizes.length;
   }
 }
 
@@ -530,7 +530,7 @@ paintSound(); paintLog();
 if (DEMO) {
   people = demoPeople();
   $("demo-tag").hidden = false;
-  document.title = "Diwali Dhamaka · Raffle draw (demo)";
+  document.title = "Dhamaka · Raffle draw (demo)";
   render();
 } else {
   render();

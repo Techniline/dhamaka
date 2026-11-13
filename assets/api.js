@@ -1,4 +1,4 @@
-/* Diwali Dhamaka: shared helpers for every page (talking to the Apps Script, small UI bits).
+/* Dhamaka: shared helpers for every page (talking to the Apps Script, small UI bits).
  * Staff key (optional): if the Apps Script has a STAFF_KEY, staff open pages
  * once with #key=<value> in the link; the key is remembered on that device.
  */
@@ -98,7 +98,7 @@
       rows.push([p.n ? drawNo(p.n) : "", p.n ? "Employee" : "Employee (not checked in)", p.name, p.dept, p.code, "", stamp(p.t)]);
       (p.g || []).forEach(function (g) { rows.push([drawNo(g.n), "Guest", g.name, "", "", p.name, stamp(g.t)]); });
     });
-    download("diwali-dhamaka-checkins-" + new Date().toISOString().slice(0, 10) + ".csv", csv(rows));
+    download("dhamaka-checkins-" + new Date().toISOString().slice(0, 10) + ".csv", csv(rows));
   }
   window.R = { cfg: CFG, get: get, post: post, key: key, drawNo: drawNo, esc: esc, toast: toast, brand: brand, entriesOf: entriesOf, totals: totals, csv: csv, download: download, stamp: stamp, exportCheckins: exportCheckins };
 })();

@@ -217,9 +217,9 @@ test('the people answer is cached and refreshed after every change', () => {
 
 test('setup renames an existing Drive folder to the current event name', () => {
   const { g } = fresh();
-  const old = g.ctx.DriveApp.createFolder('Roshni 2026 - Diwali Photos');
+  const old = g.ctx.DriveApp.createFolder('Old event name - Photos');
   g._.props.set('FOLDER_ID', old.getId());
   g.ctx.setup();
-  assert.equal(old.getName(), 'Diwali Dhamaka 2026 - Photos');
+  assert.equal(old.getName(), 'Dhamaka 2026 - Photos');
   assert.equal(g._.props.get('FOLDER_ID'), old.getId(), 'same folder, just renamed');
 });
