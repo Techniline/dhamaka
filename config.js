@@ -58,7 +58,7 @@ window.ROSHNI = {
   slideSeconds: 9,                        // live album: seconds per photo
 
   // ---- Connections (README steps 1 and 2) ---------------------------------------
-  appsScriptUrl: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",   // ends with /exec
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwfUKDXqBVH0kZfopdttI00ebJQpOvDwKcoYzqwLtTcGnVcjeARBlcu-8hbyRgJAI6PJw/exec",   // ends with /exec
   cloudinaryCloudName: "xccqslt2",
   cloudinaryUploadPreset: "roshni",       // unsigned preset, folder "roshni"
   // Where the site lives: used for the QR codes on screens and posters.
