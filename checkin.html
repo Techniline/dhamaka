@@ -87,6 +87,8 @@
   .sum { margin-top: 16px; padding: 12px; text-align: center; border-radius: 14px; background: rgba(0,0,0,0.25); font-weight: 800; color: var(--marigold); }
   .toast { top: calc(12px + env(safe-area-inset-top)); bottom: auto; transform: translateY(-10px); }
   .toast.show { transform: none; }
+  .remove { display: block; margin: 18px auto 0; padding: 8px 14px; border: 0; background: none; color: #ff9cbf; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
+  .addf label { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--marigold); margin: 14px 0 6px; }
   .note { font-size: 12.5px; color: var(--faint); margin: 8px 0 0; }
 </style>
 </head>
@@ -112,6 +114,7 @@
       <button class="chip" data-f="in" type="button">Checked in <b id="c-in">0</b></button>
       <button class="chip" data-f="out" type="button">Not yet <b id="c-out">0</b></button>
     </div>
+    <button class="btn btn-ghost btn-sm" id="add-person" type="button">+ Add person</button>
   </div>
 </header>
 
@@ -191,8 +194,8 @@ function render() {
       (g ? '<span class="gb">+' + g + '</span>' : "") + '</button>';
   });
   $("grid").innerHTML = html;
-  if (!people.length) showEmpty('No employees yet. Add the list in <a href="admin.html#people">admin</a>.');
-  else if (!list.length) showEmpty("No one matches " + (query ? "“" + R.esc(query) + "”" : "this filter") + ".");
+  if (!people.length) showEmpty('No one on the list yet. Add the list in <a href="admin.html#people">admin</a>, or use <b>+ Add person</b>.');
+  else if (!list.length) showEmpty("No one matches " + (query ? "“" + R.esc(query) + "”" : "this filter") + "." + (query ? '<br><button class="btn btn-primary btn-sm" type="button" data-add style="margin-top:14px">+ Add “' + R.esc(query.trim()) + '” to the list</button>' : ""));
   else $("empty").hidden = true;
 }
 function showEmpty(html) { $("empty").innerHTML = html; $("empty").hidden = false; }
@@ -236,6 +239,7 @@ function paintSheet() {
     html += '<div class="sum">Employee + ' + n + (n === 1 ? " guest" : " guests") + ' = ' + (n + 1) + (n ? " entries" : " entry") + '</div>';
   }
   if (!p.n) html += '<p class="note">Guests can be added after check-in. Each checked-in employee and guest gets one draw entry.</p>';
+  html += '<button class="remove" type="button" data-act="remove">Remove ' + R.esc(p.name) + ' from the list</button>';
   $("sheet").innerHTML = html;
   var gf = $("g-form");
   if (gf) {
@@ -254,12 +258,48 @@ $("sheet").addEventListener("click", function (e) {
     var g = (p.g || []).length;
     if (!confirm("Undo check-in for " + p.name + "?" + (g ? " Their " + g + (g === 1 ? " guest" : " guests") + " will be removed too." : "") + " Their draw number" + (g ? "s are" : " is") + " retired and won't be reused.")) return;
     change(p, { action: "checkin", id: p.id, on: false }, function (x) { x.n = 0; x.g = []; }, "Check-in undone");
+  } else if (act === "remove") {
+    var gs = (p.g || []).length;
+    if (!confirm("Remove " + p.name + " from the list?" + (p.n ? " They're checked in: their draw entry" + (gs ? " and " + gs + (gs === 1 ? " guest" : " guests") : "") + " leave the draw." : ""))) return;
+    var gone = p;
+    closeSheet();
+    people = people.filter(function (x) { return x.id !== gone.id; }); delete byId[gone.id]; render();
+    R.post({ action: "deletePerson", id: gone.id }).then(function () { R.toast("Removed " + gone.name + " from the list"); })
+      .catch(function (e2) { R.toast("Didn't remove: " + (e2.message || "try again"), 5000); load(); });
   } else if (act === "rm") {
     var n = Number(b.dataset.n), guest = (p.g || []).filter(function (x) { return x.n === n; })[0];
     if (!guest || !confirm("Remove " + guest.name + " (" + R.drawNo(n) + ")?")) return;
     change(p, { action: "guestRemove", id: p.id, n: n }, function (x) { x.g = x.g.filter(function (y) { return y.n !== n; }); }, "Removed " + guest.name);
   }
 });
+// Add someone who isn't on the list (a walk-in, or a name missed from the import)
+function openAdd(name) {
+  openId = 0;
+  $("sheet").innerHTML = '<div class="sh-head"><div><h2 id="sh-name">Add a person</h2><p>For anyone who is not on the list yet.</p></div>' +
+    '<button class="x" type="button" data-close-add aria-label="Close">×</button></div>' +
+    '<form class="addf" id="add-form" autocomplete="off"><label for="a-name">Name</label><input class="input" id="a-name" maxlength="80" required enterkeyhint="next">' +
+    '<label for="a-dept">Location or department <span style="text-transform:none;letter-spacing:0;color:var(--faint)">(optional)</span></label><input class="input" id="a-dept" maxlength="60" enterkeyhint="done">' +
+    '<button class="btn btn-primary big" type="submit">Add to the list</button></form>';
+  $("a-name").value = name || "";
+  $("scrim").hidden = false;
+  setTimeout(function () { $("a-name").focus(); }, 50);
+  $("sheet").querySelector("[data-close-add]").addEventListener("click", closeSheet);
+  $("add-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var nm = $("a-name").value.trim(), dp = $("a-dept").value.trim();
+    if (nm.length < 2) { R.toast("Type the person's name"); $("a-name").focus(); return; }
+    var btn = this.querySelector("button[type=submit]"); btn.disabled = true; btn.textContent = "Adding…";
+    R.post({ action: "savePerson", name: nm, dept: dp }).then(function (res) {
+      people.push(res.person); byId[res.person.id] = res.person;
+      $("q").value = ""; query = ""; $("q-clear").hidden = true; render();
+      R.toast("Added " + res.person.name);
+      openSheet(res.person.id); // straight to their card, ready to check in
+    }).catch(function (e2) { btn.disabled = false; btn.textContent = "Add to the list"; R.toast("Didn't add: " + (e2.message || "try again"), 5000); });
+  });
+}
+$("add-person").addEventListener("click", function () { openAdd(""); });
+$("empty").addEventListener("click", function (e) { var b = e.target.closest("[data-add]"); if (b) openAdd(query.trim()); });
+
 function addGuest(id, name) {
   name = String(name || "").trim();
   if (name.length < 2) { R.toast("Type the guest's name first"); $("g-name").focus(); return; }
