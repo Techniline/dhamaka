@@ -97,10 +97,16 @@
 
       var pad = W * 0.045, mid = ph + bar / 2 + lw, x = pad;
 
-      // ---- diya mark on the left, rising a little above the bar like a lamp on a ledge
+      // ---- diya on the left: the lamp sits on the gold ledge and its wick and flame
+      // rise out of the bar into the photo. In diya.svg the flame runs from 12% to 54%
+      // of the height and the bowl from 56% to 88%, so placing the top at 47% of the
+      // lamp's height above the bar puts the wick on the gold line.
       if (mark) {
-        var mh = bar * 1.0, mw = mh * (mark.naturalWidth || 1) / (mark.naturalHeight || 1);
-        ctx.drawImage(mark, pad - mw * 0.08, H - bar * 0.06 - mh, mw, mh);
+        var mh = bar * 1.45, mw = mh * (mark.naturalWidth || 1) / (mark.naturalHeight || 1);
+        ctx.save();
+        ctx.shadowColor = 'rgba(20,4,14,0.45)'; ctx.shadowBlur = W * 0.012; // keeps the flame clear on bright photos
+        ctx.drawImage(mark, pad - mw * 0.08, ph - mh * 0.47, mw, mh);
+        ctx.restore();
         x = pad + mw * 0.92 + W * 0.012;
       }
 
