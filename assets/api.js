@@ -100,5 +100,9 @@
     });
     download("dhamaka-checkins-" + new Date().toISOString().slice(0, 10) + ".csv", csv(rows));
   }
+  // Works like an app: pages and artwork load even when the venue Wi-Fi drops (sw.js).
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
   window.R = { cfg: CFG, get: get, post: post, key: key, drawNo: drawNo, esc: esc, toast: toast, brand: brand, entriesOf: entriesOf, totals: totals, csv: csv, download: download, stamp: stamp, exportCheckins: exportCheckins };
 })();

@@ -9,11 +9,15 @@
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; color: var(--ink); background: var(--background) url("rangoli-tile.svg"); background-size: 96px 96px; font-family: 'Manrope', system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); overflow-x: hidden; color: var(--ink); background: var(--background) url("rangoli-tile.svg"); background-size: 96px 96px; font-family: 'Manrope', system-ui, sans-serif; line-height: 1.5; -webkit-font-smoothing: antialiased; }
 [hidden] { display: none !important; }
 img { max-width: 100%; }
 button, input, select, textarea { font: inherit; color: inherit; }
+/* app feel: no double-tap zoom or text selection on controls, no grey flash on tap */
+button, a, .chip, .btn, label { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+input, textarea, select { touch-action: manipulation; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 a { color: var(--gold); }
 
 /* marigold garland across the top of phone pages */
@@ -27,9 +31,9 @@ a { color: var(--gold); }
 .btn:active { transform: scale(0.97); }
 .btn-primary { background: linear-gradient(135deg, var(--gold), var(--marigold) 45%, var(--saffron)); color: #3a1206; box-shadow: 0 10px 26px -12px rgba(var(--saffron-rgb), 0.9); }
 .btn-ghost { background: rgba(0, 0, 0, 0.25); color: var(--ink); border-color: var(--hair-strong); }
-.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+@media (hover: hover) { .btn-ghost:hover { border-color: var(--gold); color: var(--gold); } }
 .btn-danger { background: rgba(214, 51, 108, 0.12); color: #ff9cbf; border-color: rgba(214, 51, 108, 0.45); }
-.btn-sm { min-height: 38px; padding: 0 14px; font-size: 13px; }
+.btn-sm { min-height: 42px; padding: 0 16px; font-size: 13.5px; }
 .btn[disabled] { opacity: 0.45; cursor: default; }
 
 /* inputs */
@@ -40,7 +44,7 @@ textarea.input { padding: 12px 16px; min-height: 160px; resize: vertical; line-h
 
 /* chips (filters, tabs) */
 .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.chip { min-height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--hair-strong); background: rgba(0, 0, 0, 0.2); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.chip { min-height: 42px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--hair-strong); background: rgba(0, 0, 0, 0.2); font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
 .chip.on { background: var(--marigold); border-color: var(--marigold); color: #3a1206; }
 .chip b { font-weight: 800; opacity: 0.8; }
 

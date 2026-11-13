@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a0a1e">
 <title>Dhamaka · Admin</title>
@@ -29,7 +29,7 @@
   .tabs button { flex: none; padding: 12px 16px; border: 0; border-bottom: 3px solid transparent; background: none; color: var(--dim); font-weight: 800; cursor: pointer; }
   .tabs button.on { color: var(--gold); border-bottom-color: var(--gold); }
   .tabs b { font-weight: 800; color: var(--faint); margin-left: 4px; }
-  main { max-width: 1100px; margin: 0 auto; padding: 18px 16px 80px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 18px 16px calc(110px + env(safe-area-inset-bottom)); }
   h2 { font: 800 22px/1.2 var(--heading); margin: 0 0 6px; }
   .lead { color: var(--dim); margin: 0 0 16px; font-size: 14px; }
   .box { padding: 16px; margin-bottom: 16px; }
@@ -59,8 +59,22 @@
   .people td { padding: 8px; border-bottom: 1px solid var(--hair); vertical-align: middle; }
   .people td.n { color: var(--gold); font-weight: 800; white-space: nowrap; }
   .people td.a { text-align: right; white-space: nowrap; }
-  .people .btn { min-height: 34px; padding: 0 12px; font-size: 12.5px; }
-  .people input { min-height: 36px; font-size: 14px; padding: 0 10px; border-radius: 10px; }
+  .people .btn { min-height: 42px; padding: 0 14px; font-size: 13px; }
+  .people input { min-height: 44px; font-size: 16px; padding: 0 12px; border-radius: 12px; }
+  /* phones: each employee becomes a small card instead of a squeezed table row */
+  @media (max-width: 640px) {
+    .people thead { display: none; }
+    .people tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--hair); }
+    .people td { border: 0; padding: 1px 0; }
+    .people td:first-child { font-weight: 800; }
+    .people td:empty { display: none; }
+    .people td.a { grid-column: 2; grid-row: 1 / span 3; align-self: center; display: flex; gap: 6px; }
+    .people tr[data-row] { grid-template-columns: 1fr; row-gap: 8px; }
+    .people tr[data-row] td.a { grid-column: 1; grid-row: auto; }
+    .people tr[data-row] td.a .btn { flex: 1; }
+    .people tr[data-row] .hide-sm { display: block; }
+  }
+  .switch { min-height: 44px; }
   @media (max-width: 640px) { .people .hide-sm { display: none; } }
   .preview { margin-top: 10px; font-size: 13px; color: var(--dim); }
   .preview table { width: 100%; border-collapse: collapse; margin-top: 8px; }
@@ -117,7 +131,7 @@
       <div class="row" style="justify-content:space-between">
         <h2>Employees</h2>
         <div class="row">
-          <input class="input" id="filter" placeholder="Search" style="width:180px;min-height:38px;font-size:14px">
+          <input class="input" id="filter" type="search" placeholder="Search" style="width:180px;min-height:42px">
           <button class="btn btn-ghost btn-sm" id="add-one" type="button">Add one</button>
           <button class="btn btn-ghost btn-sm" id="export" type="button">Export CSV</button>
         </div>
@@ -226,7 +240,7 @@ function paintPeople() {
   if (editing) { var f = $("e-name"); if (f) f.focus(); }
 }
 function editRow(p) {
-  return '<tr data-row="' + p.id + '"><td><input class="input" id="e-name" value="' + R.esc(p.name) + '" placeholder="Name"></td><td><input class="input" id="e-dept" value="' + R.esc(p.dept) + '" placeholder="Department"></td>' +
+  return '<tr data-row="' + p.id + '"><td><input class="input" id="e-name" value="' + R.esc(p.name) + '" placeholder="Name"></td><td><input class="input" id="e-dept" value="' + R.esc(p.dept) + '" placeholder="Location or department"></td>' +
     '<td class="hide-sm"><input class="input" id="e-code" value="' + R.esc(p.code) + '" placeholder="ID"></td><td></td><td class="hide-sm"></td>' +
     '<td class="a"><button class="btn btn-primary" data-save="' + p.id + '" type="button">Save</button> <button class="btn btn-ghost" data-cancel type="button">Cancel</button></td></tr>';
 }

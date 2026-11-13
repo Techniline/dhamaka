@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="referrer" content="no-referrer">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#2a0a1e">
 <title>Dhamaka · Check-in</title>
@@ -26,7 +26,7 @@
   .bar1 img { width: 36px; height: 36px; }
   .bar1 .wordmark { font-size: 26px; }
   .bar1 .what { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-top: 2px; }
-  .sync { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--faint); white-space: nowrap; }
+  .sync { margin-left: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--faint); white-space: nowrap; }
   .sync::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #5bd17a; box-shadow: 0 0 8px #5bd17a; }
   .sync.off::before { background: #ff6b6b; box-shadow: 0 0 8px #ff6b6b; }
   .sync.busy::before { background: var(--gold); box-shadow: 0 0 8px var(--gold); }
@@ -36,8 +36,9 @@
   .tot b { display: block; font: 800 21px/1.1 var(--heading); white-space: nowrap; color: var(--gold); font-variant-numeric: tabular-nums; }
   .tot > div > span { font-size: 11px; font-weight: 700; color: var(--dim); letter-spacing: 0.04em; }
   .tot small { font-size: 13px; color: var(--faint); font-weight: 700; }
-  .export { flex: none; min-height: 36px; padding: 0 12px; font-size: 12.5px; }
-  @media (max-width: 520px) { .chip { min-height: 34px; padding: 0 11px; font-size: 12.5px; } .tools .chips { flex-wrap: nowrap; } .top { padding-bottom: 8px; } .tot { margin-top: 8px; } .tools { margin-top: 8px; } }
+  .export { flex: none; min-height: 42px; padding: 0 14px; font-size: 13px; }
+  @media (max-width: 400px) { .sync { font-size: 0; gap: 0; } .bar1 .wordmark { font-size: 24px; } }
+  @media (max-width: 520px) { .chip { min-height: 42px; padding: 0 12px; font-size: 13px; } .tools .chips { flex-wrap: nowrap; } .top { padding-bottom: 8px; } .tot { margin-top: 8px; } .tools { margin-top: 8px; } }
 
   .tools { display: flex; gap: 8px; align-items: center; max-width: 1200px; margin: 10px auto 0; flex-wrap: wrap; }
   .search { position: relative; flex: 1 1 260px; }
@@ -63,7 +64,7 @@
 
   /* the panel for one employee */
   .scrim { position: fixed; inset: 0; z-index: 50; background: rgba(15, 3, 10, 0.7); display: flex; align-items: flex-end; justify-content: center; }
-  .sheet { width: 100%; max-width: 520px; max-height: 92svh; overflow: auto; padding: 18px 18px calc(22px + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; background: var(--surface); border: 1px solid var(--gold-hair); border-bottom: 0; animation: up .28s var(--ease); }
+  .sheet { width: 100%; max-width: 520px; max-height: 92svh; max-height: 92dvh; overflow: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; padding: 18px 18px calc(22px + env(safe-area-inset-bottom)); border-radius: 24px 24px 0 0; background: var(--surface); border: 1px solid var(--gold-hair); border-bottom: 0; animation: up .28s var(--ease); }
   @keyframes up { from { transform: translateY(40px); opacity: 0; } }
   @media (min-width: 700px) { .scrim { align-items: center; } .sheet { border-radius: 24px; border-bottom: 1px solid var(--gold-hair); } }
   .sh-head { display: flex; gap: 12px; align-items: flex-start; }
@@ -87,7 +88,7 @@
   .sum { margin-top: 16px; padding: 12px; text-align: center; border-radius: 14px; background: rgba(0,0,0,0.25); font-weight: 800; color: var(--marigold); }
   .toast { top: calc(12px + env(safe-area-inset-top)); bottom: auto; transform: translateY(-10px); }
   .toast.show { transform: none; }
-  .remove { display: block; margin: 18px auto 0; padding: 8px 14px; border: 0; background: none; color: #ff9cbf; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
+  .remove { display: block; margin: 18px auto 0; min-height: 44px; padding: 8px 14px; border: 0; background: none; color: #ff9cbf; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: underline; }
   .addf label { display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--marigold); margin: 14px 0 6px; }
   .note { font-size: 12.5px; color: var(--faint); margin: 8px 0 0; }
 </style>
@@ -98,6 +99,7 @@
     <img data-cfg="logos.event" alt="">
     <div><div class="wordmark" data-cfg="eventName"></div><div class="what">Check-in</div></div>
     <span class="sync busy" id="sync">Loading…</span>
+    <button class="btn btn-primary export" id="add-person" type="button" title="Add someone who is not on the list">+ Add</button>
     <button class="btn btn-ghost export" id="export" type="button" title="Download a CSV of check-ins and guests">CSV</button>
   </div>
   <div class="tot" aria-live="polite">
@@ -107,14 +109,13 @@
   </div>
   <div class="tools">
     <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input class="input" id="q" type="search" placeholder="Search name, department, ID or DW number" autocomplete="off" enterkeyhint="search" aria-label="Search employees">
+      <input class="input" id="q" type="search" placeholder="Search name or DW number" autocomplete="off" enterkeyhint="search" aria-label="Search employees">
       <button class="clear" id="q-clear" type="button" aria-label="Clear search" hidden>×</button></label>
     <div class="chips" role="tablist" id="filters">
       <button class="chip on" data-f="all" type="button">All <b id="c-all">0</b></button>
       <button class="chip" data-f="in" type="button">Checked in <b id="c-in">0</b></button>
       <button class="chip" data-f="out" type="button">Not yet <b id="c-out">0</b></button>
     </div>
-    <button class="btn btn-ghost btn-sm" id="add-person" type="button">+ Add person</button>
   </div>
 </header>
 
@@ -194,7 +195,7 @@ function render() {
       (g ? '<span class="gb">+' + g + '</span>' : "") + '</button>';
   });
   $("grid").innerHTML = html;
-  if (!people.length) showEmpty('No one on the list yet. Add the list in <a href="admin.html#people">admin</a>, or use <b>+ Add person</b>.');
+  if (!people.length) showEmpty('No one on the list yet. Add the list in <a href="admin.html#people">admin</a>, or tap <b>+ Add</b>.');
   else if (!list.length) showEmpty("No one matches " + (query ? "“" + R.esc(query) + "”" : "this filter") + "." + (query ? '<br><button class="btn btn-primary btn-sm" type="button" data-add style="margin-top:14px">+ Add “' + R.esc(query.trim()) + '” to the list</button>' : ""));
   else $("empty").hidden = true;
 }
@@ -246,6 +247,7 @@ function paintSheet() {
     $("g-name").value = keep;
     if (focused) $("g-name").focus();
     gf.addEventListener("submit", function (e) { e.preventDefault(); addGuest(p.id, $("g-name").value); });
+    $("g-name").addEventListener("focus", function () { var el = this; setTimeout(function () { el.scrollIntoView({ block: "center", behavior: "smooth" }); }, 300); });
   }
 }
 $("sheet").addEventListener("click", function (e) {
