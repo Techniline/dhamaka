@@ -1,5 +1,5 @@
 /* =====================================================================
- * Roshni · Techniline Electronics Diwali Night
+ * Diwali Dhamaka · Techniline Electronics
  * EVERY event setting lives in this file. Change the values below and
  * replace the logos in /assets if you need to; nothing else needs editing.
  *
@@ -9,18 +9,18 @@
 window.ROSHNI = {
 
   // ---- Event --------------------------------------------------------------
-  eventName: "Roshni",                    // the event's name (Hindi for "light")
-  tagline: "Diwali Night 2026",           // shown under the name
+  eventName: "Diwali Dhamaka",            // the event's name
+  tagline: "Festival of Lights 2026",    // shown under the name
   company: "Techniline Electronics",      // host
   dateText: "",                           // e.g. "Friday 20 November · 7 pm" ("" to hide)
   venue: "",                              // e.g. "Techniline HQ, Dubai" ("" to hide)
   timeZone: "Asia/Dubai",                 // used for the time stamped on photos and in the draw log
-  hashtags: ["#RoshniAtTechniline", "#HappyDiwali"],
+  hashtags: ["#DiwaliDhamaka", "#Techniline", "#HappyDiwali"],
 
   // ---- Photo frame (drawn on every guest photo) ----------------------------
   frame: {
-    title: "Roshni",                      // big word on the frame bar (keep it short)
-    tag: "DIWALI NIGHT",                  // small bold text under the title
+    title: "Diwali Dhamaka",              // big words on the frame bar (shrinks to fit)
+    tag: "FESTIVAL OF LIGHTS",            // small bold text under the title
     line: "2026",                         // small text after the tag
     hostLabel: "HOSTED BY"                // label above the company logo ("" to hide)
   },
@@ -60,7 +60,7 @@ window.ROSHNI = {
   // ---- Connections (README steps 1 and 2) ---------------------------------------
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbwfUKDXqBVH0kZfopdttI00ebJQpOvDwKcoYzqwLtTcGnVcjeARBlcu-8hbyRgJAI6PJw/exec",   // ends with /exec
   cloudinaryCloudName: "xccqslt2",
-  cloudinaryUploadPreset: "roshni",       // unsigned preset, folder "roshni"
+  cloudinaryUploadPreset: "roshni",       // unsigned preset, folder "roshni" (internal name, never shown)
   // Where the site lives: used for the QR codes on screens and posters.
   siteUrl: "https://techniline.github.io/diwali/",
   // Only used when a page is opened from this computer's test server (localhost)

@@ -1,4 +1,4 @@
-/* Roshni: what each QR screen and poster points to (?for=photos or ?for=checkin). */
+/* Diwali Dhamaka: what each QR screen and poster points to (?for=photos or ?for=checkin). */
 function qrTarget() {
   var CFG = window.ROSHNI, base = CFG.siteUrl.replace(/\/?$/, "/");
   var which = (/[?&]for=([a-z]+)/.exec(location.search) || [])[1] || "photos";

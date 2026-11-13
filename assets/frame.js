@@ -1,7 +1,7 @@
-/* Roshni: the branded Diwali photo frame, drawn on the guest's phone.
+/* Diwali Dhamaka: the branded Diwali photo frame, drawn on the guest's phone.
  * (Adapted from the Capture the Moment kit.) The photo keeps its own shape,
  * with a rangoli in each top corner and the event bar underneath: diya mark,
- * ROSHNI, the date and time, and the company logo. Text, colours and logos come
+ * the event name, the date and time, and the company logo. Text, colours and logos come
  * from config.js. Browsers apply EXIF rotation when decoding, so photos come out upright.
  *
  *   makeCaptureFrame(img [, whenMs])  ->  Promise<{ dataUrl, w, h }>

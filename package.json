@@ -1,7 +1,7 @@
 {
   "name": "roshni-diwali",
   "private": true,
-  "description": "Roshni: Techniline Electronics Diwali Night (photo booth, check-in, raffle draw)",
+  "description": "Diwali Dhamaka: Techniline Electronics Diwali party (photo booth, check-in, raffle draw)",
   "scripts": {
     "test": "node --test tests/backend.test.js tests/fairness.test.js",
     "serve": "node tools/dev-server.js 8765",

@@ -1,4 +1,4 @@
-/* Roshni: the fair pick for the raffle draw (used by draw.html and the Node tests).
+/* Diwali Dhamaka: the fair pick for the raffle draw (used by draw.html and the Node tests).
  * fairIndex(n) returns a uniform random whole number in [0, n) from the
  * cryptographic generator (crypto.getRandomValues). Values from the top,
  * uneven slice of the 32-bit range are thrown away and drawn again

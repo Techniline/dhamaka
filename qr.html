@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Roshni · A4 poster</title>
+<title>Diwali Dhamaka · A4 poster</title>
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@ if (when) { document.getElementById("when").textContent = when; document.getElem
 document.getElementById("h1").innerHTML = T.headline;
 document.getElementById("lines").innerHTML = T.lines;
 document.getElementById("url").textContent = T.url.replace(/^https?:\/\//, "").replace(/\/$/, "");
-document.title = "Roshni · A4 poster · " + (T.which === "checkin" ? "check-in" : "photos");
+document.title = "Diwali Dhamaka · A4 poster · " + (T.which === "checkin" ? "check-in" : "photos");
 new QRCode(document.getElementById("qr"), { text: T.url, width: 800, height: 800, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.Q });
 </script>
 </body>

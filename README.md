@@ -1,6 +1,6 @@
-# Roshni · Techniline Electronics Diwali Night
+# Diwali Dhamaka · Techniline Electronics
 
-*Roshni* means "light". One small website for the office Diwali party:
+One small website for the office Diwali party:
 
 | Page | Who uses it | What it does |
 |---|---|---|
@@ -38,7 +38,7 @@ This uses the same free Cloudinary account as Soundcheck (cloud name `xccqslt2`)
 2. Settings → API Keys: note the **API Key** and **API Secret**. They're only needed for deleting photos, and they go in step 2.3, never in a file.
 
 ### 2. Google Apps Script (the backend)
-1. Go to [script.google.com](https://script.google.com) → **New project**. Name it *Roshni Diwali*.
+1. Go to [script.google.com](https://script.google.com) → **New project**. Name it *Roshni Diwali* (the project behind this site is already called that).
 2. Delete the sample code, paste all of `apps-script/Code.gs`, and save.
 3. **Project Settings** (gear icon) → **Script Properties** → add:
    - `CLOUDINARY_KEY` and `CLOUDINARY_SECRET` (from step 1.2)

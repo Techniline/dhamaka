@@ -1,4 +1,4 @@
-/* Roshni: big-screen scaling. Every big-screen page is laid out on a fixed canvas
+/* Diwali Dhamaka: big-screen scaling. Every big-screen page is laid out on a fixed canvas
  * (.screen, size from config.js: 1920 x 1080 for a 16:9 TV) and scaled to fill
  * the display, so the layout is identical at 1080p, 4K or on a laptop.
  *   ?anchor=top   pin the canvas to the top-left instead of centring it
