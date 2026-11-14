@@ -9,7 +9,7 @@ const CFG = win.DHAMAKA, V = require("../assets/announcer.js"), A = V.make(CFG.d
 const M = JSON.parse(fs.readFileSync(path.join(ROOT, "assets/voice/voices.json"), "utf8"));
 
 test("every prize, winner and number line for the config prizes is recorded", () => {
-  const fixed = A.allFixed(CFG.draw.prizes);
+  const fixed = A.allFixed(CFG.draw.prizes, 250);
   for (const lang of ["en", "hi"]) for (const t of fixed[lang]) assert.ok(M.clips[V.key(lang, t)], "missing " + lang + ": " + t);
 });
 test("every recording in the list exists on disk", () => {
@@ -20,5 +20,6 @@ test("winner lines: guests name their host, and the last prize gets the big intr
   assert.deepStrictEqual(w.en.map(s => s.t), ["The first prize goes to...", "Priya", "guest of", "Rahul", "Congratulations!"]);
   assert.deepStrictEqual(w.hi.map(s => s.t), ["पहले इनाम के विजेता हैं...", "Priya", "Rahul", "के मेहमान!", "बहुत-बहुत बधाई!"]);
   assert.match(A.prizeLines("1st Prize · Dhamaka Grand Prize", true).en[0].t, /^And now, the moment/);
-  assert.deepStrictEqual(A.numberLines("042", "en").map(s => s.t), ["Lucky number", "zero", "four", "two"]);
+  assert.deepStrictEqual(A.numberLines(42, "en").map(s => s.t), ["Lucky number 42!"]);
+  assert.deepStrictEqual(A.numberLines(7, "hi").map(s => s.t), ["लकी नंबर 7!"]);
 });

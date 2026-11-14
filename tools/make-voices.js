@@ -10,7 +10,11 @@
  * nobody needs any more, and writes assets/voice/voices.json for the draw screen.
  * Then publish (git push) so the site has the new recordings.
  *
- * Options: --offline  use config.js prizes only, skip names (no Apps Script call)
+ * Every recording is trimmed of the silence the voice service adds (needs ffmpeg), so lines
+ * follow each other at a natural pace.
+ *
+ * Options: --offline     use config.js prizes only, skip names (no Apps Script call)
+ *          --numbers=N   record "Lucky number" 1 to N (default: highest draw number + 150, at least 250)
  */
 "use strict";
 const fs = require("fs"), path = require("path"), vm = require("vm"), crypto = require("crypto");
@@ -29,32 +33,50 @@ const Voice = require(path.join(ROOT, "assets", "announcer.js"));
 const A = Voice.make(CFG.draw);
 const NAT = Object.assign({ english: "en-IN-NeerjaNeural", hindi: "hi-IN-SwaraNeural", rate: "+0%" }, (CFG.draw.voice || {}).natural);
 const VOICES = { en: NAT.english, hi: NAT.hindi };
+const TRIM = "trim2"; // change to re-make every recording
+const arg = (name) => { const a = process.argv.find(x => x.startsWith("--" + name + "=")); return a ? a.split("=")[1] : null; };
+let HAVE_FFMPEG = true;
 
 async function liveData() {
-  if (OFFLINE) return { prizes: CFG.draw.prizes, names: [] };
+  if (OFFLINE) return { prizes: CFG.draw.prizes, names: [], maxN: 0 };
   const res = await fetch(CFG.appsScriptUrl + "?action=people", { redirect: "follow" });
   const d = await res.json();
   if (!d.ok) throw new Error("Apps Script said: " + JSON.stringify(d).slice(0, 200));
-  const names = [];
-  (d.people || []).forEach(p => { names.push(p.name); (p.g || []).forEach(g => names.push(g.name)); });
-  return { prizes: d.prizes && d.prizes.length ? d.prizes : CFG.draw.prizes, names };
+  const names = []; let maxN = 0;
+  (d.people || []).forEach(p => {
+    names.push(p.name); maxN = Math.max(maxN, p.n || 0);
+    (p.g || []).forEach(g => { names.push(g.name); maxN = Math.max(maxN, g.n || 0); });
+  });
+  return { prizes: d.prizes && d.prizes.length ? d.prizes : CFG.draw.prizes, names, maxN: Math.max(maxN, (d.next || 1) - 1) };
 }
 
 function fileFor(lang, text) {
-  const h = crypto.createHash("sha1").update([VOICES[lang], NAT.rate, Voice.key(lang, text)].join("\n")).digest("hex");
+  const h = crypto.createHash("sha1").update([VOICES[lang], NAT.rate, TRIM, Voice.key(lang, text)].join("\n")).digest("hex");
   return lang + "-" + h.slice(0, 14) + ".mp3";
 }
 
-function record(lang, text, file) {
-  return new Promise((ok, fail) => {
-    execFile("python", ["-m", "edge_tts", "--voice", VOICES[lang], "--rate", NAT.rate, "--text", text,
-      "--write-media", path.join(OUT, file)], { windowsHide: true }, err => err ? fail(err) : ok());
-  });
+function run(cmd, args) {
+  return new Promise((ok, fail) => execFile(cmd, args, { windowsHide: true }, err => err ? fail(err) : ok()));
+}
+// Silence trimmed from the start (all) and the end (all but 0.1 s), re-encoded small
+const TRIM_FILTER = "silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.03," +
+  "areverse,silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.1,areverse";
+async function record(lang, text, file) {
+  const final = path.join(OUT, file), raw = final + ".raw.mp3";
+  await run("python", ["-m", "edge_tts", "--voice", VOICES[lang], "--rate", NAT.rate, "--text", text, "--write-media", raw]);
+  if (HAVE_FFMPEG) {
+    try {
+      await run("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-i", raw, "-af", TRIM_FILTER, "-ac", "1", "-b:a", "48k", final]);
+      fs.unlinkSync(raw); return;
+    } catch (e) { HAVE_FFMPEG = false; console.warn("  ffmpeg not available: recordings are not trimmed"); }
+  }
+  fs.renameSync(raw, final);
 }
 
 (async () => {
-  const { prizes, names } = await liveData();
-  const fixed = A.allFixed(prizes);
+  const { prizes, names, maxN } = await liveData();
+  const numbers = Number(arg("numbers")) || Math.max(250, maxN + 150);
+  const fixed = A.allFixed(prizes, numbers);
   const lines = [];
   ["en", "hi"].forEach(lang => {
     fixed[lang].forEach(t => lines.push([lang, t]));
@@ -70,7 +92,7 @@ function record(lang, text, file) {
     if (!fs.existsSync(path.join(OUT, file))) todo.push([lang, text, file]);
   });
 
-  console.log(`${Object.keys(clips).length} lines (${prizes.length} prizes, ${names.length} names); ${todo.length} to record`);
+  console.log(`${Object.keys(clips).length} lines (${prizes.length} prizes, ${names.length} names, lucky numbers 1-${numbers}); ${todo.length} to record`);
   let done = 0, failed = 0;
   async function worker() {
     while (todo.length) {
@@ -83,11 +105,11 @@ function record(lang, text, file) {
       if (++done % 20 === 0) console.log(`  ${done} recorded`);
     }
   }
-  await Promise.all(Array.from({ length: 6 }, worker));
+  await Promise.all(Array.from({ length: 8 }, worker));
 
   // tidy: remove recordings no line uses any more
   const keep = new Set(Object.values(clips));
-  fs.readdirSync(OUT).filter(f => f.endsWith(".mp3") && !keep.has(f)).forEach(f => fs.unlinkSync(path.join(OUT, f)));
+  fs.readdirSync(OUT).filter(f => f.endsWith(".mp3") && !keep.has(f) || f.endsWith(".raw.mp3")).forEach(f => fs.unlinkSync(path.join(OUT, f)));
 
   const manifest = { made: new Date().toISOString(), voices: VOICES, rate: NAT.rate, clips };
   fs.writeFileSync(path.join(OUT, "voices.json"), JSON.stringify(manifest, null, 1) + "\n");

@@ -183,7 +183,7 @@ function ord(i) { return ORD[i] || (i + 1) + "th"; }
 function load() {
   if (DEMO) return Promise.resolve(render());
   return R.get("people").then(function (res) {
-    people = res.people || [];
+    people = res.people || []; warmEntries();
     prizes = res.prizes && res.prizes.length ? res.prizes : prizes;
     if (!saving) { winners = res.winners || []; skipped = res.skipped || []; log = res.log || []; }
     render(); paintLog();
@@ -262,8 +262,8 @@ function showMeaning(prize) {
 var rec = null, recUrl = {};
 fetch("assets/voice/voices.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
   if (!m || !m.clips) return;
-  rec = m; paintVoice();
-  var list = Object.keys(m.clips), i = 0;
+  rec = m; paintVoice(); warmEntries();
+  var list = Object.keys(m.clips).filter(function (k) { return !isNumberKey(k); }), i = 0;
   function next() {
     if (i >= list.length) return;
     var k = list[i++];
@@ -272,6 +272,20 @@ fetch("assets/voice/voices.json", { cache: "no-cache" }).then(function (r) { ret
   }
   for (var w = 0; w < 4; w++) next();
 }).catch(function () {});
+// Lucky-number recordings are only fetched for entries that have no name recording
+function isNumberKey(k) { return /^(en\|Lucky number|hi\|लकी नंबर) /.test(k); }
+function warm(lang, t) {
+  var k = VKEY(lang, t);
+  if (!rec || !rec.clips[k] || recUrl[k]) return;
+  recUrl[k] = "assets/voice/" + rec.clips[k];
+  fetch(recUrl[k]).then(function (r) { return r.ok ? r.blob() : null; }).then(function (b) { if (b) recUrl[k] = URL.createObjectURL(b); }).catch(function () {});
+}
+function warmEntries() {
+  if (!rec) return;
+  R.entriesOf(people).forEach(function (e) {
+    ["en", "hi"].forEach(function (l) { if (!has(l, e.name)) warm(l, A.numberLines(e.n, l)[0].t); });
+  });
+}
 function has(lang, t) { return !!(rec && rec.clips[VKEY(lang, t)]); }
 function clipSrc(lang, t) { var k = VKEY(lang, t); return recUrl[k] || "assets/voice/" + rec.clips[k]; }
 
@@ -299,7 +313,7 @@ function wants(lang) { return voiceMode === "both" || voiceMode === (lang === "e
 function resolve(lang, lines, w) {
   var out = [];
   lines.forEach(function (s) {
-    if (s.k === "name" && !has(lang, s.t)) out = out.concat(A.numberLines(R.drawNo(w.n).slice(CFG.draw.prefix.length), lang));
+    if (s.k === "name" && !has(lang, s.t)) out = out.concat(A.numberLines(w.n, lang));
     else if ((s.k === "host" || s.k === "guest") && !has(lang, w.host)) return;
     else out.push(s);
   });
@@ -311,7 +325,7 @@ function stepsFor(set, w) {
     if (!wants(lang)) return;
     var lines = resolve(lang, set[lang], w || {});
     if (lines.every(function (s) { return has(lang, s.t); })) {
-      lines.forEach(function (s) { steps.push({ src: clipSrc(lang, s.t), pause: /\.\.\.$/.test(s.t) ? 420 : 90 }); });
+      lines.forEach(function (s) { steps.push({ src: clipSrc(lang, s.t), pause: /\.\.\.$/.test(s.t) ? 450 : 60 }); });
     } else {
       var v = lang === "en" ? enVoice() : hiVoice();
       if (v) steps.push({ speak: set[lang].map(function (s) { return s.t; }).join(" "), voice: v });
@@ -438,6 +452,7 @@ function draw() {
 
   // The winner is decided here, before anything moves; the reels then land on it.
   var pick = DhamakaFair.fairIndex(list.length), winner = list[pick.index];
+  ["en", "hi"].forEach(function (l) { if (!has(l, winner.name)) warm(l, A.numberLines(winner.n, l)[0].t); });
   var target = String(winner.n); while (target.length < digits) target = "0" + target;
   var at = Date.now(), fpP = DhamakaFair.fingerprint(list.map(function (e) { return e.n; }));
 
@@ -655,7 +670,7 @@ document.addEventListener("keydown", function (e) {
 
 paintSound(); paintVoice(); paintLog();
 if (DEMO) {
-  people = demoPeople();
+  people = demoPeople(); warmEntries();
   $("demo-tag").hidden = false;
   document.title = "Dhamaka · Raffle draw (demo)";
   render();

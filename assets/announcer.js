@@ -10,8 +10,6 @@
 (function (root) {
   var RANK_EN = { 1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth" };
   var RANK_HI_OBL = { 1: "पहले", 2: "दूसरे", 3: "तीसरे", 4: "चौथे", 5: "पाँचवें", 6: "छठे", 7: "सातवें", 8: "आठवें", 9: "नौवें", 10: "दसवें" };
-  var DIGITS_EN = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
-  var DIGITS_HI = ["शून्य", "एक", "दो", "तीन", "चार", "पाँच", "छह", "सात", "आठ", "नौ"];
 
   function make(draw) {
     var MEANINGS = (draw && draw.meanings) || [];
@@ -57,20 +55,19 @@
       return { en: en, hi: hi };
     }
 
-    // Stand-in for a name with no recording: "lucky number zero four two"
-    function numberLines(digits, lang) {
-      var words = lang === "hi" ? DIGITS_HI : DIGITS_EN;
-      return [fixed(lang === "hi" ? "लकी नंबर" : "Lucky number")].concat(String(digits).split("").map(function (d) { return fixed(words[+d] || d); }));
+    // Stand-in for a name with no recording, said as one natural phrase: "Lucky number 42!"
+    function numberLines(n, lang) {
+      return [{ t: (lang === "hi" ? "लकी नंबर " : "Lucky number ") + Number(n) + "!", k: "number" }];
     }
 
-    // Every fixed line the recorder should make for this list of prizes
-    function allFixed(prizes) {
+    // Every fixed line the recorder should make for this list of prizes, plus lucky numbers 1 to maxNumber
+    function allFixed(prizes, maxNumber) {
       var out = { en: [], hi: [] };
       prizes.forEach(function (p, i) {
         var a = prizeLines(p, i === prizes.length - 1 && prizes.length > 1), b = winnerLines(p, { name: "", host: "x" });
         ["en", "hi"].forEach(function (l) { a[l].concat(b[l]).forEach(function (s) { if (s.k === "fixed" || s.k === "guest") out[l].push(s.t); }); });
       });
-      ["en", "hi"].forEach(function (l) { numberLines("0123456789", l).forEach(function (s) { out[l].push(s.t); }); });
+      for (var n = 1; n <= (maxNumber || 0); n++) ["en", "hi"].forEach(function (l) { out[l].push(numberLines(n, l)[0].t); });
       return out;
     }
 
