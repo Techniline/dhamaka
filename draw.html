@@ -162,6 +162,7 @@
 <script src="assets/api.js"></script>
 <script src="assets/fullscreen.js"></script>
 <script src="assets/fair.js"></script>
+<script src="assets/announcer.js"></script>
 <script src="assets/screen.js"></script>
 <script>
 // Raffle draw (adapted from Soundcheck's draw.html).
@@ -246,38 +247,43 @@ function render() {
 }
 
 // ================================================================ prize meanings and the announcer
-// Announcements are spoken in English, then Hindi, with the best built-in voice for each
-// language (natural/online voices first). A language with no voice installed is skipped.
-var MEANINGS = CFG.draw.meanings || [], VOICE = CFG.draw.voice || {};
+// Announcements are spoken in English, then Hindi. The lines are recorded once with
+// Microsoft's natural neural voices (tools/make-voices.js, files in assets/voice/), so they
+// sound the same in every browser. A name with no recording is read as "lucky number 0 4 2";
+// a sentence with no recording (a prize renamed on the night) uses the browser's own voice.
+var VOICE = CFG.draw.voice || {}, A = DhamakaVoice.make(CFG.draw), VKEY = DhamakaVoice.key;
 var MODES = ["both", "english", "hindi", "off"], voiceMode = MODES.indexOf(VOICE.mode) >= 0 ? VOICE.mode : "both";
-var RANK_EN = { 1: "first", 2: "second", 3: "third", 4: "fourth", 5: "fifth", 6: "sixth", 7: "seventh", 8: "eighth", 9: "ninth", 10: "tenth" };
-var RANK_HI = { 1: "पहला", 2: "दूसरा", 3: "तीसरा", 4: "चौथा", 5: "पाँचवाँ" };
-var RANK_HI_OBL = { 1: "पहले", 2: "दूसरे", 3: "तीसरे", 4: "चौथे", 5: "पाँचवें" };
-function wordRe(w, flags) { return new RegExp("(^|[^A-Za-z])" + w + "(?![A-Za-z])", flags || "i"); }
-function meaningOf(prize) {
-  for (var i = 0; i < MEANINGS.length; i++) if (wordRe(MEANINGS[i].word).test(prize || "")) return MEANINGS[i];
-  return null;
-}
 function showMeaning(prize) {
-  var m = meaningOf(prize);
+  var m = A.meaningOf(prize);
   $("meaning").innerHTML = m ? "<b>" + R.esc(m.word) + "</b> means " + R.esc(m.means) + (m.hi ? " &nbsp;·&nbsp; " + R.esc(m.hi) : "") : "";
 }
-function rankNo(prize) { var r = /(\d+)\s*(st|nd|rd|th)/i.exec(prize || ""); return r ? Number(r[1]) : 0; }
-function rankEn(prize) { var n = rankNo(prize); return n ? (RANK_EN[n] || n + "th") + " prize" : "next prize"; }
-// The prize as the voice should say it: without the "3rd Prize ·" part
-function bareName(prize) { return String(prize || "").replace(/^\s*\d+\s*(st|nd|rd|th)\s*prize\s*[·:\-–]?\s*/i, "").replace(/·/g, ","); }
-function sayEn(text) { MEANINGS.forEach(function (m) { text = text.replace(wordRe(m.word, "gi"), function (all, pre) { return pre + (m.say || m.word); }); }); return text; }
-function sayHi(text) { MEANINGS.forEach(function (m) { if (m.hi) text = text.replace(wordRe(m.word, "gi"), function (all, pre) { return pre + m.hi; }); }); return text.replace(/Grand Prize/i, "ग्रैंड प्राइज़").replace(/\bPrize\b/i, "इनाम"); }
 
+// ---- the recordings: loaded into memory when the page opens, so a Wi-Fi drop can't cut the voice
+var rec = null, recUrl = {};
+fetch("assets/voice/voices.json", { cache: "no-cache" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (m) {
+  if (!m || !m.clips) return;
+  rec = m; paintVoice();
+  var list = Object.keys(m.clips), i = 0;
+  function next() {
+    if (i >= list.length) return;
+    var k = list[i++];
+    fetch("assets/voice/" + m.clips[k]).then(function (r) { return r.ok ? r.blob() : null; })
+      .then(function (b) { if (b) recUrl[k] = URL.createObjectURL(b); }).catch(function () {}).then(next);
+  }
+  for (var w = 0; w < 4; w++) next();
+}).catch(function () {});
+function has(lang, t) { return !!(rec && rec.clips[VKEY(lang, t)]); }
+function clipSrc(lang, t) { var k = VKEY(lang, t); return recUrl[k] || "assets/voice/" + rec.clips[k]; }
+
+// ---- the browser's own voices: only a fallback now
 var voices = [];
-function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } paintVoice(); if (voices.length) setTimeout(naturalTip, 1500); }
+function loadVoices() { try { voices = speechSynthesis.getVoices() || []; } catch (e) { voices = []; } paintVoice(); }
 if (window.speechSynthesis) { loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
 function pickVoice(langs) {
   for (var i = 0; i < langs.length; i++) {
     var want = langs[i].toLowerCase();
     var list = voices.filter(function (v) { return v.lang.toLowerCase().replace("_", "-").indexOf(want) === 0; });
     if (!list.length) continue;
-    // Edge's neural voices sound human (e.g. "Microsoft Neerja Online (Natural)", "Microsoft Swara Online (Natural)")
     return list.filter(function (v) { return /natural/i.test(v.name); })[0] ||
       list.filter(function (v) { return /online|neural/i.test(v.name); })[0] ||
       list.filter(function (v) { return /google/i.test(v.name); })[0] || list[0];
@@ -286,53 +292,70 @@ function pickVoice(langs) {
 }
 function enVoice() { return pickVoice(VOICE.english || ["en-IN", "en-GB", "en-US", "en"]); }
 function hiVoice() { return pickVoice(VOICE.hindi || ["hi-IN", "hi"]); }
-function speak(text, voice) {
-  var u = new SpeechSynthesisUtterance(text);
-  if (voice) { u.voice = voice; u.lang = voice.lang; }
-  u.rate = VOICE.rate || 0.95; u.pitch = VOICE.pitch || 1; u.volume = 1;
-  speechSynthesis.speak(u); // utterances queue, so Hindi follows English
+
+// ---- building and playing an announcement
+function wants(lang) { return voiceMode === "both" || voiceMode === (lang === "en" ? "english" : "hindi"); }
+// Swap lines that have no recording: an unknown name becomes the draw number; an unknown host is left out
+function resolve(lang, lines, w) {
+  var out = [];
+  lines.forEach(function (s) {
+    if (s.k === "name" && !has(lang, s.t)) out = out.concat(A.numberLines(R.drawNo(w.n).slice(CFG.draw.prefix.length), lang));
+    else if ((s.k === "host" || s.k === "guest") && !has(lang, w.host)) return;
+    else out.push(s);
+  });
+  return out;
 }
-function announce(en, hi, delay) {
-  if (voiceMode === "off" || !soundOn || !window.speechSynthesis) return;
-  setTimeout(function () {
-    if (voiceMode === "off" || !soundOn) return;
-    var ev = enVoice(), hv = hiVoice();
-    if (en && (voiceMode === "both" || voiceMode === "english") && ev) speak(en, ev);
-    if (hi && (voiceMode === "both" || voiceMode === "hindi") && hv) speak(hi, hv);
-  }, delay || 0);
+function stepsFor(set, w) {
+  var steps = [];
+  ["en", "hi"].forEach(function (lang) {
+    if (!wants(lang)) return;
+    var lines = resolve(lang, set[lang], w || {});
+    if (lines.every(function (s) { return has(lang, s.t); })) {
+      lines.forEach(function (s) { steps.push({ src: clipSrc(lang, s.t), pause: /\.\.\.$/.test(s.t) ? 420 : 90 }); });
+    } else {
+      var v = lang === "en" ? enVoice() : hiVoice();
+      if (v) steps.push({ speak: set[lang].map(function (s) { return s.t; }).join(" "), voice: v });
+    }
+    steps.push({ wait: 500 });
+  });
+  return steps;
 }
-function hush() { try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {} }
-function announcePrize(prize, isLastPrize) {
-  var m = meaningOf(prize), n = rankNo(prize), name = bareName(prize);
-  var en = (isLastPrize ? "And now, the moment we have all been waiting for! " : "") +
-    "Now drawing the " + rankEn(prize) + ": " + sayEn(name) + "!" +
-    (m ? " " + (m.say || m.word) + " means " + m.means.replace(":", ",") + "." : "");
-  var hi = (isLastPrize ? "और अब, जिस पल का सबको इंतज़ार था! " : "") +
-    "अब " + (RANK_HI_OBL[n] ? RANK_HI_OBL[n] + " इनाम" : "अगले इनाम") + " की बारी है: " + sayHi(name) + "!" +
-    (m && m.hiMeans ? " " + (m.hi || m.word) + ", यानी " + m.hiMeans + "।" : "");
-  announce(en, hi);
+var vtoken = 0, vaudio = null;
+function play(steps, my) {
+  if (my !== vtoken || !steps.length) return;
+  var s = steps.shift(), next = function () { play(steps, my); };
+  if (s.wait) return void setTimeout(next, s.wait);
+  if (s.speak) {
+    var u = new SpeechSynthesisUtterance(s.speak);
+    u.voice = s.voice; u.lang = s.voice.lang; u.rate = VOICE.rate || 0.95; u.pitch = VOICE.pitch || 1;
+    u.onend = u.onerror = next;
+    return void speechSynthesis.speak(u);
+  }
+  var a = vaudio = new Audio(s.src), moved = false;
+  var go = function () { if (moved) return; moved = true; setTimeout(next, s.pause || 0); };
+  a.onended = go; a.onerror = go;
+  var p = a.play(); if (p && p.catch) p.catch(go);
 }
-function announceWinner(prize, w) {
-  var n = rankNo(prize);
-  var en = "The " + rankEn(prize) + " goes to... " + w.name + (w.host ? ", guest of " + w.host : "") + "! Congratulations!";
-  var hi = (RANK_HI[n] ? RANK_HI[n] + " इनाम" : "यह इनाम") + " जीता है... " + w.name + " ने! बहुत-बहुत बधाई!";
-  hush(); announce(en, hi, 1300);
+function announce(steps, delay) {
+  if (voiceMode === "off" || !soundOn) return;
+  var my = ++vtoken;
+  setTimeout(function () { if (voiceMode !== "off" && soundOn) play(steps, my); }, delay || 0);
 }
-var tipShown = false;
-function naturalTip() {
-  if (tipShown || voiceMode === "off" || !voices.length) return;
-  var ev = enVoice(), hv = hiVoice();
-  if ((ev && /natural/i.test(ev.name)) && (!hv || /natural/i.test(hv.name))) return;
-  tipShown = true;
-  R.toast("Tip: open this page in Microsoft Edge for natural, human-sounding voices", 7000);
+function hush() {
+  vtoken++;
+  if (vaudio) { try { vaudio.pause(); } catch (e) {} vaudio = null; }
+  try { if (window.speechSynthesis) speechSynthesis.cancel(); } catch (e) {}
 }
+function announcePrize(prize, isLastPrize) { announce(stepsFor(A.prizeLines(prize, isLastPrize))); }
+function announceWinner(prize, w) { hush(); announce(stepsFor(A.winnerLines(prize, w), w), 1300); }
 function voiceLabel() { return { both: "Voice: English + Hindi", english: "Voice: English", hindi: "Voice: Hindi", off: "Voice off" }[voiceMode]; }
+function shortVoice(id) { return String(id || "").replace(/^[a-z]{2}-[A-Z]{2}-/, "").replace(/Neural$/, ""); }
 function paintVoice() {
   var b = $("voicebtn"); if (!b) return;
-  var ev = enVoice(), hv = hiVoice();
   b.textContent = voiceLabel();
   b.style.color = voiceMode === "off" ? "" : "var(--gold)";
-  b.title = "Announcer (V). English voice: " + (ev ? ev.name : "none found") + ". Hindi voice: " + (hv ? hv.name : "none found") + ".";
+  if (rec) b.title = "Announcer (V). Natural recorded voices: " + shortVoice(rec.voices.en) + " (English), " + shortVoice(rec.voices.hi) + " (Hindi).";
+  else { var ev = enVoice(), hv = hiVoice(); b.title = "Announcer (V). No recordings found; browser voices: " + (ev ? ev.name : "none") + ", " + (hv ? hv.name : "none") + "."; }
 }
 
 

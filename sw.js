@@ -5,10 +5,10 @@
  *   copy is only used when the network fails.
  * - Live data (check-ins, photos, winners) comes from Apps Script and is never cached.
  */
-var CACHE = "dhamaka-v1";
+var CACHE = "dhamaka-v2";
 var CORE = [
   "./", "index.html", "checkin.html", "admin.html", "draw.html", "live.html", "qr-screen.html", "qr.html",
-  "config.js", "assets/api.js", "assets/dhamaka.css", "assets/frame.js", "assets/fair.js", "assets/screen.js",
+  "config.js", "assets/api.js", "assets/dhamaka.css", "assets/frame.js", "assets/fair.js", "assets/announcer.js", "assets/screen.js",
   "assets/fullscreen.js", "assets/qr-targets.js", "assets/diya.svg", "assets/mandala.svg", "assets/rangoli-tile.svg",
   "assets/toran.svg", "assets/favicon.svg", "assets/techniline.png", "assets/icon-192.png", "assets/icon-512.png", "assets/icon-180.png"
 ];

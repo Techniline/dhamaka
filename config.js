@@ -58,7 +58,10 @@ window.DHAMAKA = {
     voice: {
       mode: "both", rate: 0.95, pitch: 1.0,
       english: ["en-IN", "en-GB", "en-US", "en"],
-      hindi: ["hi-IN", "hi"]
+      hindi: ["hi-IN", "hi"],
+      // Recorded natural voices (tools/make-voices.js) play in every browser; the browser's
+      // own voice above is only used for a line that has no recording yet.
+      natural: { english: "en-IN-NeerjaNeural", hindi: "hi-IN-SwaraNeural", rate: "-4%" }
     },
     // What each prize name means, found by a word in the prize's name. "say" is how the
     // English voice should pronounce it; "hi" and "hiMeans" are used for the Hindi announcement.
