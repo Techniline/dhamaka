@@ -44,6 +44,8 @@ var MAX_KEY_FAILS = 30;  // wrong staff keys per 10 minutes before a short locko
 var ITEM = 'P_';         // Script Property prefix: album entries
 var EMP = 'E_';          // Script Property prefix: one entry per employee
 var MAX_GUESTS = 20;     // per employee
+var SELF_MAX_GUESTS = 5; // guests an employee can add themselves on the photo page (the desk can add more)
+var SELF_UNDO_MS = 15 * 60 * 1000; // a guest added by mistake can be removed on the phone for 15 minutes
 var MAX_PEOPLE = 1500;
 
 function setup() {
@@ -62,6 +64,7 @@ function doGet(e) {
   var p = (e && e.parameter) || {};
   try {
     if (p.action === 'list') return json_(publicList_());
+    if (p.action === 'roster') return json_(roster_());
     if (p.action === 'people') { auth_(p.key); return json_(peopleState_()); }
     if (p.action === 'admin') {
       auth_(p.key);
@@ -91,11 +94,20 @@ var STAFF_ACTIONS = {
   'delete': function (b) { return delete_(b); }
 };
 
+// Public: employees check themselves in and add their guests on the photo page.
+// They can't undo a check-in or touch anyone's guests but the ones they just added.
+var SELF_ACTIONS = {
+  selfCheckin: function (b) { return selfCheckin_(b); },
+  selfGuest: function (b) { return selfGuest_(b); },
+  selfGuestRemove: function (b) { return selfGuestRemove_(b); }
+};
+
 function doPost(e) {
   try {
     var body = JSON.parse(e.postData.contents);
     if (body.action === 'register') return json_(register_(body));
     if (body.action === 'upload') return json_(upload_(body));
+    if (SELF_ACTIONS[body.action]) return json_(SELF_ACTIONS[body.action](body));
     var fn = STAFF_ACTIONS[body.action];
     if (!fn) throw new Error('Bad request');
     auth_(body.key);
@@ -165,6 +177,59 @@ function checkin_(body) {
       if (isWinnerNo_(p.n) || p.g.some(function (g) { return isWinnerNo_(g.n); })) throw new Error('Already drawn as a winner. Reset the draw first.');
       p.n = 0; p.t = 0; p.g = [];
     }
+    savePerson__(p);
+    return { ok: true, person: p };
+  });
+}
+
+// ---- self check-in (photo page) --------------------------------------------------
+
+// The name list for the photo page: names, draw numbers and guests only (no codes or log).
+function roster_() {
+  var s = peopleState_();
+  return {
+    ok: true, rev: s.rev, selfMax: SELF_MAX_GUESTS,
+    people: s.people.map(function (p) {
+      return { id: p.id, name: p.name, dept: p.dept, n: p.n, g: (p.g || []).map(function (g) { return { n: g.n, name: g.name, s: g.s ? 1 : 0, t: g.t }; }) };
+    })
+  };
+}
+
+function selfCheckin_(body) {
+  return change_(body, function (props) {
+    var p = getPerson_(body.id);
+    if (!p) throw new Error('We couldn\'t find your name. Please see the check-in desk.');
+    if (!p.n) { p.n = takeNo_(props); p.t = Date.now(); p.s = 1; }
+    savePerson__(p);
+    return { ok: true, person: p };
+  });
+}
+
+function selfGuest_(body) {
+  var name = clean_(body.name, 60);
+  if (name.length < 2) throw new Error('Type your guest\'s name.');
+  return change_(body, function (props) {
+    var p = getPerson_(body.id);
+    if (!p) throw new Error('We couldn\'t find your name. Please see the check-in desk.');
+    if (!p.n) throw new Error('Check yourself in first.');
+    var same = p.g.filter(function (g) { return g.name.toLowerCase() === name.toLowerCase(); })[0];
+    if (same) return { ok: true, person: p, already: true };
+    if (p.g.length >= SELF_MAX_GUESTS) throw new Error('You can add up to ' + SELF_MAX_GUESTS + ' guests here. For more, please see the check-in desk.');
+    p.g.push({ n: takeNo_(props), name: name, t: Date.now(), s: 1 });
+    savePerson__(p);
+    return { ok: true, person: p };
+  });
+}
+
+function selfGuestRemove_(body) {
+  return change_(body, function () {
+    var p = getPerson_(body.id);
+    if (!p) throw new Error('We couldn\'t find your name. Please see the check-in desk.');
+    var n = Number(body.n), g = p.g.filter(function (x) { return x.n === n; })[0];
+    if (!g) return { ok: true, person: p };
+    if (!g.s || Date.now() - g.t > SELF_UNDO_MS) throw new Error('To change this guest, please see the check-in desk.');
+    if (isWinnerNo_(n)) throw new Error('This guest has already won a prize!');
+    p.g = p.g.filter(function (x) { return x.n !== n; });
     savePerson__(p);
     return { ok: true, person: p };
   });
@@ -287,7 +352,7 @@ function getPerson_(id) {
   return raw ? JSON.parse(raw) : null;
 }
 function savePerson__(p) {
-  PropertiesService.getScriptProperties().setProperty(EMP + p.id, JSON.stringify({ id: p.id, name: p.name, dept: p.dept || '', code: p.code || '', n: p.n || 0, t: p.t || 0, g: p.g || [] }));
+  PropertiesService.getScriptProperties().setProperty(EMP + p.id, JSON.stringify({ id: p.id, name: p.name, dept: p.dept || '', code: p.code || '', n: p.n || 0, t: p.t || 0, s: p.n && p.s ? 1 : 0, g: p.g || [] }));
 }
 function allPeople_() {
   var props = PropertiesService.getScriptProperties().getProperties(), out = [];

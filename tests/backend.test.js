@@ -184,6 +184,32 @@ test('open by default; a STAFF_KEY locks staff actions but not guest photos', ()
   locked.ok({ action: 'register', id: 'dhamaka/abc123', w: 10, h: 10 });
 });
 
+test('self check-in on the photo page works without a staff key and shows on the cards', () => {
+  const { g, ok, fail, state } = fresh({ props: { STAFF_KEY: 'k3y' } });
+  ok({ action: 'importPeople', rows: ROWS, key: 'k3y' });
+  const roster = g.get({ action: 'roster' });
+  assert.equal(roster.ok, true); assert.equal(roster.people.length, 3);
+  assert.equal(roster.people[0].code, undefined, 'no employee codes in the public list');
+  const a = roster.people[0];
+  fail({ action: 'selfGuest', id: a.id, name: 'Sameer', op: op() }, /Check yourself in first/);
+  assert.equal(ok({ action: 'selfCheckin', id: a.id, op: op() }).person.n, 1);
+  assert.equal(ok({ action: 'selfCheckin', id: a.id, op: op() }).person.n, 1, 'checking in again keeps the number');
+  ok({ action: 'selfGuest', id: a.id, name: 'Sameer Rahman', op: op() });
+  const again = ok({ action: 'selfGuest', id: a.id, name: 'sameer rahman', op: op() });
+  assert.equal(again.already, true); assert.equal(again.person.g.length, 1, 'the same guest twice is added once');
+  for (let i = 2; i <= 5; i++) ok({ action: 'selfGuest', id: a.id, name: 'Guest ' + i, op: op() });
+  fail({ action: 'selfGuest', id: a.id, name: 'Guest 6', op: op() }, /up to 5 guests/);
+  // the staff cards see it straight away
+  const s = g.get({ action: 'people', key: 'k3y' }).people[0];
+  assert.equal(s.n, 1); assert.equal(s.g.length, 5); assert.equal(s.s, 1);
+  // a guest added here can be removed here; the desk's guests can't
+  ok({ action: 'selfGuestRemove', id: a.id, n: s.g[4].n, op: op() });
+  ok({ action: 'guestAdd', id: a.id, name: 'Desk Guest', key: 'k3y', op: op() });
+  const desk = g.get({ action: 'people', key: 'k3y' }).people[0].g.find((x) => x.name === 'Desk Guest');
+  fail({ action: 'selfGuestRemove', id: a.id, n: desk.n, op: op() }, /check-in desk/);
+  fail({ action: 'checkin', id: a.id, on: false, op: op() }, /staff link/);
+});
+
 test('photos: register, approve, auto-approve and public list', () => {
   const { g, ok, fail } = fresh();
   fail({ action: 'register', id: '../bad' }, /Bad photo id/);

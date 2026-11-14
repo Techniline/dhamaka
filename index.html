@@ -5,8 +5,8 @@
 <meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
 <meta name="theme-color" content="#2a0a1e">
-<title>Dhamaka · Capture the moment</title>
-<meta name="description" content="Take a photo at Dhamaka, Techniline Electronics' party, and add it to the album.">
+<title>Dhamaka · Check in and capture the moment</title>
+<meta name="description" content="Check in at Dhamaka, Techniline Electronics' party, add your guests for the lucky draw, and share your photos.">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest-index.webmanifest">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -88,6 +88,45 @@
   /* under the iPhone status bar when opened from the Home Screen */
   .toran { margin-top: env(safe-area-inset-top); }
 
+
+  /* hero shortcuts */
+  .hero-go { position: relative; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .hero-go .btn { min-width: 150px; }
+
+  /* self check-in */
+  .ci-results { display: grid; gap: 8px; margin-top: 10px; }
+  .ci-results:empty { display: none; }
+  .ci-person { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 56px; padding: 10px 16px; border-radius: 14px; border: 1px solid var(--hair-strong); background: rgba(0,0,0,0.22); color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .ci-person b { display: block; font-size: 16px; }
+  .ci-person small { color: var(--faint); font-size: 12.5px; }
+  .ci-person .in { flex: none; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); }
+  @media (hover: hover) { .ci-person:hover { border-color: var(--gold); } }
+  .ci-note { margin: 14px 0 0; color: var(--faint); font-size: 13px; text-align: center; }
+  .ci-confirm { text-align: center; padding: 8px 0 4px; }
+  .ci-confirm .q { color: var(--dim); margin: 0; }
+  .ci-confirm .who { font: 800 clamp(24px, 7vw, 32px)/1.15 var(--heading); margin: 6px 0 20px; overflow-wrap: anywhere; }
+  .ci-actions { display: grid; gap: 10px; max-width: 340px; margin: 0 auto; }
+  .ticket { position: relative; text-align: center; padding: 22px 16px 20px; border-radius: 18px; overflow: hidden;
+    background: radial-gradient(90% 80% at 50% 0%, rgba(var(--gold-rgb), 0.22), transparent 70%), rgba(0,0,0,0.25); border: 1px dashed rgba(var(--gold-rgb), 0.55); }
+  .ticket.pop { animation: popIn .6s cubic-bezier(.2,1.3,.4,1); }
+  .ticket .hi { font: 800 20px/1.2 var(--heading); margin: 6px 0 14px; overflow-wrap: anywhere; }
+  .ticket .lbl { font-size: 11px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; color: var(--faint); }
+  .ticket .no { white-space: nowrap; font: 400 clamp(44px, 14vw, 72px)/1.05 var(--display); color: var(--gold); margin: 6px 0 8px; letter-spacing: 0.02em; text-shadow: 0 0 30px rgba(var(--marigold-rgb), 0.45); }
+  .ticket .sub { color: var(--dim); font-size: 13.5px; }
+  .g-head { display: flex; align-items: baseline; justify-content: space-between; margin: 22px 0 10px; }
+  .g-head h3 { margin: 0; font: 800 18px var(--heading); }
+  .g-head span { color: var(--faint); font-size: 13px; }
+  .t-guests { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .t-guests:empty { display: none; }
+  .t-guests li { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 6px 6px 14px; border-radius: 14px; background: rgba(0,0,0,0.22); border: 1px solid var(--hair); }
+  .t-guests .gno { flex: none; font: 800 14px var(--heading); color: var(--gold); font-variant-numeric: tabular-nums; }
+  .t-guests .gname { flex: 1; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+  .t-guests .x { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; color: var(--faint); cursor: pointer; display: grid; place-items: center; }
+  .t-form { display: flex; gap: 8px; margin-top: 10px; }
+  .t-form .input { flex: 1; min-width: 0; }
+  .t-form .btn { flex: none; }
+  .linkish { display: block; margin: 16px auto 0; min-height: 44px; padding: 0 12px; border: 0; background: none; color: var(--faint); font: inherit; font-size: 13px; font-weight: 700; text-decoration: underline; cursor: pointer; }
+
   /* full-size viewer */
   .lightbox { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: rgba(20,4,14,0.96); touch-action: pan-y; }
   .lb-img { max-width: calc(100vw - 32px); max-height: calc(100svh - 120px); width: auto; height: auto; border-radius: 10px; }
@@ -119,7 +158,53 @@
   <h1 class="wordmark" data-cfg="eventName"></h1>
   <div class="tag"><span data-cfg="tagline"></span></div>
   <div class="when" data-cfg="dateText" data-hide-empty></div>
+  <nav class="hero-go" aria-label="Start here">
+    <a class="btn btn-primary" href="#checkin">Check in</a>
+    <a class="btn btn-ghost" href="#capture">Take a photo</a>
+  </nav>
 </header>
+
+<section class="section" id="checkin">
+  <div class="wrap">
+    <div class="head">
+      <p class="eyebrow">Check in</p>
+      <h2>You're here? <em>Check in</em></h2>
+      <p>Find your name to get your lucky draw number, then add the guests you brought. Every guest gets a number too.</p>
+    </div>
+    <div class="panel" aria-live="polite">
+      <div id="ci-find">
+        <input class="input" id="ci-search" type="search" placeholder="Type your name" autocomplete="off" autocapitalize="words" enterkeyhint="search" aria-label="Your name">
+        <div class="ci-results" id="ci-results"></div>
+        <p class="ci-note" id="ci-note">Not on the list? Please see the check-in desk.</p>
+      </div>
+      <div class="ci-confirm" id="ci-confirm" hidden>
+        <p class="q">Check in as</p>
+        <div class="who" id="ci-who"></div>
+        <div class="ci-actions">
+          <button class="btn btn-primary" type="button" id="ci-yes">Yes, that's me</button>
+          <button class="btn btn-ghost" type="button" id="ci-no">Not me</button>
+        </div>
+      </div>
+      <div id="ci-ticket" hidden>
+        <div class="ticket" id="ticket">
+          <p class="eyebrow">You're checked in</p>
+          <div class="hi" id="t-hi"></div>
+          <div class="lbl">Your lucky draw number</div>
+          <div class="no" id="t-no"></div>
+          <div class="sub">The draw is on stage tonight. Good luck!</div>
+        </div>
+        <div class="g-head"><h3>Your guests</h3><span id="t-count"></span></div>
+        <ul class="t-guests" id="t-guests"></ul>
+        <form class="t-form" id="t-form" autocomplete="off">
+          <input class="input" id="t-guest" placeholder="Guest's full name" maxlength="60" autocapitalize="words" enterkeyhint="done" aria-label="Guest's full name">
+          <button class="btn btn-primary" type="submit" id="t-add">Add</button>
+        </form>
+        <p class="ci-note" id="t-limit"></p>
+        <button class="linkish" type="button" id="t-switch">Not you? Choose another name</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="section" id="capture">
   <div class="wrap">
@@ -316,6 +401,100 @@ $("thanks").addEventListener("click", function (e) { if (e.target === this) clos
 $("thanks-done").addEventListener("click", closeThanks);
 $("thanks-album").addEventListener("click", closeThanks);
 $("thanks-again").addEventListener("click", function () { closeThanks(); $("camera-input").click(); });
+
+
+// --- Self check-in: find your name, get your draw number, add your guests ------------
+// Everything goes to the same list as the check-in desk (checkin.html), so the desk's
+// cards and the raffle draw update by themselves. The phone remembers who you are.
+var ME_STORE = "dhamaka-me", roster = [], selfMax = 5, me = null, picked = null;
+function meId() { try { return Number(localStorage.getItem(ME_STORE)) || 0; } catch (e) { return 0; } }
+function setMe(id) { try { if (id) localStorage.setItem(ME_STORE, String(id)); else localStorage.removeItem(ME_STORE); } catch (e) {} }
+function norm(s) { return String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim(); }
+function loadRoster() {
+  return R.get("roster").then(function (res) {
+    roster = res.people || []; selfMax = res.selfMax || 5;
+    var id = meId();
+    if (id) {
+      var p = roster.filter(function (x) { return x.id === id; })[0];
+      if (!p) { setMe(0); showStep("find"); }
+      else if (p.n) { me = p; renderTicket(); }
+      else { picked = p; showConfirm(); }
+    }
+    if (!$("ci-find").hidden) renderResults();
+  });
+}
+function showStep(which) {
+  $("ci-find").hidden = which !== "find";
+  $("ci-confirm").hidden = which !== "confirm";
+  $("ci-ticket").hidden = which !== "ticket";
+}
+function renderResults() {
+  var q = norm($("ci-search").value), box = $("ci-results");
+  if (q.length < 2) { box.innerHTML = ""; return; }
+  var words = q.split(" ");
+  var hits = roster.filter(function (p) { var n = norm(p.name); return words.every(function (w) { return n.split(" ").some(function (part) { return part.indexOf(w) === 0; }) || n.indexOf(w) >= 0; }); }).slice(0, 8);
+  box.innerHTML = hits.length ? hits.map(function (p) {
+    return '<button class="ci-person" type="button" data-id="' + p.id + '"><span><b>' + R.esc(p.name) + '</b>' + (p.dept ? '<small>' + R.esc(p.dept) + '</small>' : '') + '</span>' + (p.n ? '<span class="in">Checked in</span>' : '') + '</button>';
+  }).join("") : '<p class="ci-note">No one called "' + R.esc($("ci-search").value.trim()) + '" yet. Check the spelling, or see the check-in desk.</p>';
+}
+$("ci-search").addEventListener("input", renderResults);
+$("ci-search").addEventListener("focus", function () { if (!roster.length) loadRoster().catch(function () {}); });
+$("ci-results").addEventListener("click", function (e) {
+  var b = e.target.closest(".ci-person"); if (!b) return;
+  picked = roster.filter(function (p) { return p.id === Number(b.dataset.id); })[0];
+  if (picked) showConfirm();
+});
+function showConfirm() { $("ci-who").textContent = picked.name; $("ci-yes").textContent = picked.n ? "Yes, that's me" : "Yes, check me in"; showStep("confirm"); }
+$("ci-no").addEventListener("click", function () { picked = null; setMe(0); showStep("find"); $("ci-search").focus(); });
+$("ci-yes").addEventListener("click", function () {
+  var btn = this; btn.disabled = true; btn.textContent = "Checking you in…";
+  R.post({ action: "selfCheckin", id: picked.id }).then(function (res) {
+    me = res.person; setMe(me.id); upsert(me); renderTicket(true);
+  }).catch(function (e) { R.toast(e.message, 5000); showConfirm(); }).then(function () { btn.disabled = false; });
+});
+function upsert(p) { roster = roster.map(function (x) { return x.id === p.id ? p : x; }); }
+function firstName(n) { return String(n || "").split(" ")[0]; }
+function renderTicket(fresh) {
+  showStep("ticket");
+  $("t-hi").textContent = "Welcome, " + firstName(me.name) + "!";
+  $("t-no").textContent = R.drawNo(me.n);
+  var g = me.g || [];
+  $("t-count").textContent = g.length ? g.length + (g.length === 1 ? " guest" : " guests") : "";
+  $("t-guests").innerHTML = g.map(function (x) {
+    var canUndo = x.s && Date.now() - (x.t || 0) < 15 * 60 * 1000;
+    return '<li><span class="gno">' + R.drawNo(x.n) + '</span><span class="gname">' + R.esc(x.name) + '</span>' +
+      (canUndo ? '<button class="x" type="button" data-n="' + x.n + '" aria-label="Remove ' + R.esc(x.name) + '"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>' : '') + '</li>';
+  }).join("");
+  var full = g.length >= selfMax;
+  $("t-form").hidden = full;
+  $("t-limit").textContent = full ? "That's " + selfMax + " guests. For more, please see the check-in desk." : g.length ? "Each guest gets their own lucky draw number." : "Came with family or friends? Add each guest so they're in the draw too.";
+  if (fresh) { var t = $("ticket"); t.classList.remove("pop"); void t.offsetWidth; t.classList.add("pop"); }
+}
+$("t-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var name = $("t-guest").value.trim();
+  if (name.length < 2) { R.toast("Type your guest's full name"); $("t-guest").focus(); return; }
+  $("t-add").disabled = true;
+  R.post({ action: "selfGuest", id: me.id, name: name }).then(function (res) {
+    me = res.person; upsert(me); $("t-guest").value = ""; renderTicket();
+    var g = me.g.filter(function (x) { return x.name.toLowerCase() === name.toLowerCase(); })[0];
+    R.toast(res.already ? name + " is already on your list" : name + " is in the draw: " + R.drawNo(g ? g.n : 0));
+  }).catch(function (e) { R.toast(e.message, 5000); }).then(function () { $("t-add").disabled = false; });
+});
+$("t-guest").addEventListener("focus", function () { var el = this; setTimeout(function () { el.scrollIntoView({ block: "center", behavior: "smooth" }); }, 300); });
+$("t-guests").addEventListener("click", function (e) {
+  var b = e.target.closest(".x"); if (!b) return;
+  var n = Number(b.dataset.n), g = (me.g || []).filter(function (x) { return x.n === n; })[0];
+  if (!g || !confirm("Remove " + g.name + " from your guests?")) return;
+  b.disabled = true;
+  R.post({ action: "selfGuestRemove", id: me.id, n: n }).then(function (res) { me = res.person; upsert(me); renderTicket(); })
+    .catch(function (e) { R.toast(e.message, 5000); b.disabled = false; });
+});
+$("t-switch").addEventListener("click", function () { me = null; picked = null; setMe(0); $("ci-search").value = ""; renderResults(); showStep("find"); });
+loadRoster().catch(function (e) { if (meId()) R.toast(e.message, 5000); });
+// keep the ticket up to date if the desk changes something
+setInterval(function () { if (!document.hidden && me) loadRoster().catch(function () {}); }, 45000);
+document.addEventListener("visibilitychange", function () { if (!document.hidden && me) loadRoster().catch(function () {}); });
 
 // --- Album: approved photos only, refreshed every 30 s ---------------------------
 var albumPhotos = [], albumShown = {}, lbIndex = 0;
